@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 tailwind.config = {
   darkMode: 'media',
@@ -259,6 +260,21 @@ function placeholderImg(i, type, big){
     <div class="absolute inset-0" style="background:linear-gradient(0deg, rgba(0,0,0,.18), transparent 40%)"></div>
   </div>`;
 }
+function listingImage(item, mediaIndex, type, big, fallbackIndex){
+  const url = item && Array.isArray(item.mediaUrls) ? item.mediaUrls[mediaIndex] : null;
+  if(url){
+    const safe = String(url).replace(/"/g,'&quot;');
+    return `<img src="${safe}" alt="" loading="lazy" class="w-full h-full object-cover">`;
+  }
+  return placeholderImg(fallbackIndex ?? mediaIndex, type, big);
+}
+function waNumber(value){
+  const digits = String(value||'').replace(/\D/g,'');
+  if(!digits) return '';
+  if(digits.startsWith('966')) return digits;
+  if(digits.startsWith('0')) return '966'+digits.slice(1);
+  return digits;
+}
 
 const BASE_PROPERTIES = [
  {id:"p1",title:"فيلا فاخرة للبيع في حي الياسمين",tx:"للبيع",type:"فيلا",city:"الرياض",hood:"الياسمين",price:1250000,area:350,rooms:5,baths:4,living:2,age:"جديد",furnished:"غير مفروش",street:20,facing:"شمالية شرقية",office:"rowaa",featured:true,ref:"DL-1001",
@@ -321,8 +337,56 @@ let statusOverrides = LS.get('dalalah_status', {}); // id -> 'paused'|'sold'|'re
 let officeVerifyOverrides = LS.get('dalalah_office_verify', {});
 let savedSearches = LS.get('dalalah_saved_searches', []);
 
-function properties(){ return [...BASE_PROPERTIES, ...userProperties].map(p=>({...p, status: statusOverrides[p.id]||'active'})); }
-function vehicles(){ return [...BASE_VEHICLES, ...userVehicles].map(v=>({...v, status: statusOverrides[v.id]||'active'})); }
+const SUPABASE_URL = 'https://gxatslatlogoiyxrgsip.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_p9zb0HHIKvMvzxtVAznUWg_7YYZc6Mm';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+let remoteProperties = [];
+let remoteVehicles = [];
+
+function dbListingToUi(r){
+  const common = {
+    id:r.id,
+    tx:r.transaction_type || 'للبيع',
+    price:Number(r.price||0),
+    city:r.city || '-',
+    office:'rowaa',
+    ref:(r.kind==='vehicle'?'DLC-':'DL-') + String(r.id).slice(0,8).toUpperCase(),
+    desc:r.description || 'لا يوجد وصف إضافي.',
+    featured:false,
+    status:r.status==='published'?'active':r.status,
+    mediaUrls:Array.isArray(r.media_urls)?r.media_urls:[],
+    contactName:r.contact_name || '',
+    phone:r.phone || '',
+    whatsapp:r.whatsapp || '',
+    preferredContact:r.preferred_contact || '',
+    ownerId:r.owner_id
+  };
+  if(r.kind==='vehicle'){
+    return {...common, brand:r.brand||'', model:r.model||'', year:r.vehicle_year||'', mileage:Number(r.mileage||0), fuel:r.fuel||'', trans:r.transmission||'', condition:r.vehicle_condition||''};
+  }
+  return {...common, title:r.title||'عقار بدون عنوان', type:r.property_type||'عقار', hood:r.neighborhood||'-', area:Number(r.area||0), rooms:r.rooms, baths:r.baths, living:r.living_rooms, age:r.property_age, furnished:r.furnished, street:r.street_width, facing:r.facing};
+}
+async function loadRemoteListings(){
+  const {data, error} = await supabaseClient.from('listings').select('*').order('created_at',{ascending:false});
+  if(error){ console.error('Supabase listings:', error); return; }
+  const mapped = (data||[]).map(dbListingToUi);
+  remoteProperties = mapped.filter(x=>!x.brand);
+  remoteVehicles = mapped.filter(x=>!!x.brand);
+}
+async function initBackend(){
+  try{
+    const {data:{session}} = await supabaseClient.auth.getSession();
+    currentUser = session?.user || null;
+    await loadRemoteListings();
+    supabaseClient.auth.onAuthStateChange((_event, session)=>{
+      currentUser = session?.user || null;
+      setTimeout(async()=>{ await loadRemoteListings(); render(); },0);
+    });
+  }catch(err){ console.error('Supabase init:',err); }
+}
+function properties(){ return [...BASE_PROPERTIES, ...remoteProperties, ...userProperties].map(p=>({...p, status: statusOverrides[p.id]||p.status||'active'})); }
+function vehicles(){ return [...BASE_VEHICLES, ...remoteVehicles, ...userVehicles].map(v=>({...v, status: statusOverrides[v.id]||v.status||'active'})); }
 function officeById(id){ const o = OFFICES.find(o=>o.id===id); if(!o) return null; return {...o, verified: officeVerifyOverrides[id]!==undefined? officeVerifyOverrides[id] : o.verified}; }
 function saveFav(){ LS.set('dalalah_favorites', [...favorites]); }
 function fmtPrice(n){ return n.toLocaleString('en-US') + ' ر.س'; }
@@ -359,7 +423,7 @@ function navigate(path, params){
   location.hash = '#'+path+qs;
 }
 window.addEventListener('hashchange', render);
-window.addEventListener('DOMContentLoaded', ()=>{ applyOSTheme(); render(); });
+window.addEventListener('DOMContentLoaded', async()=>{ applyOSTheme(); render(); await initBackend(); render(); });
 function applyOSTheme(){ /* relies on prefers-color-scheme via CSS vars */ }
 
 function render(){
@@ -418,7 +482,7 @@ function propertyCard(p, idx){
   if(p.baths) specs.push(p.baths+' دورات مياه');
   return `<a href="#/property/${p.id}" class="group block surface rounded-2xl overflow-hidden card-shadow hover-lift tap">
     <div class="relative aspect-[4/3]">
-      ${placeholderImg(idx, p.type)}
+      ${listingImage(p,0,p.type,false,idx)}
       ${p.featured? `<span class="absolute top-3 right-3 badge-featured text-[11px] font-bold px-2.5 py-1 rounded-full">مميز</span>`:''}
       ${p.status && p.status!=='active'? `<span class="absolute top-3 right-3 text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:var(--charcoal); color:#fff;">${statusLabel(p.status)}</span>`:''}
       <button onclick="toggleFavorite('${p.id}', event)" class="absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center tap" style="background:rgba(255,255,255,.9); color:${fav?'var(--danger)':'#24231F'}">
@@ -444,7 +508,7 @@ function vehicleCard(v, idx){
   const fav = favorites.has(v.id);
   return `<a href="#/vehicle/${v.id}" class="group block surface rounded-2xl overflow-hidden card-shadow hover-lift tap">
     <div class="relative aspect-[4/3]">
-      ${placeholderImg(idx, 'سيارة')}
+      ${listingImage(v,0,'سيارة',false,idx)}
       <button onclick="toggleFavorite('${v.id}', event)" class="absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center tap" style="background:rgba(255,255,255,.9); color:${fav?'var(--danger)':'#24231F'}">${heartSvg(fav)}</button>
       <span class="absolute bottom-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:rgba(16,15,12,.55); color:#fff;">${v.tx}</span>
     </div>
@@ -719,7 +783,7 @@ function showMapPreview(id){
   const el = document.getElementById('mapPreview');
   el.classList.remove('hidden');
   el.innerHTML = `<a href="#/property/${p.id}" class="flex gap-3 p-3">
-    <div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">${placeholderImg(1,p.type)}</div>
+    <div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">${listingImage(p,0,p.type,false,1)}</div>
     <div class="min-w-0">
       <p class="font-bold text-sm truncate">${p.title}</p>
       <p class="text-sm font-display font-bold" style="color:var(--accent)">${fmtPrice(p.price)}</p>
@@ -775,15 +839,15 @@ function viewPropertyDetails(id){
     </div>
 
     <div class="grid md:grid-cols-4 gap-2 rounded-2xl overflow-hidden mb-6" style="height: 420px;">
-      <button onclick="openGallery('${p.id}')" class="md:col-span-2 md:row-span-2 relative">${placeholderImg(0,p.type,true)}
+      <button onclick="openGallery('${p.id}')" class="md:col-span-2 md:row-span-2 relative">${listingImage(p,0,p.type,true,0)}
         <span class="absolute bottom-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(16,15,12,.6); color:#fff;">عرض المعرض بالكامل</span>
       </button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(1,p.type,true)}</button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(2,p.type,true)}</button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(3,p.type,true)}
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,1,p.type,true,1)}</button>
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,2,p.type,true,2)}</button>
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,3,p.type,true,3)}
         <span class="absolute inset-0 flex items-center justify-center text-white font-bold text-sm" style="background:rgba(16,15,12,.45)">فيديو + صور إضافية</span>
       </button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(4,p.type,true)}</button>
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,4,p.type,true,4)}</button>
     </div>
 
     <div class="grid lg:grid-cols-[1fr_360px] gap-8">
@@ -841,13 +905,13 @@ function viewPropertyDetails(id){
           <a href="#/office/${office?.id}" class="flex items-center gap-3 mb-4">
             <div class="w-12 h-12 rounded-xl shrink-0" style="background:${office?.grad}"></div>
             <div class="min-w-0">
-              <p class="font-bold text-sm truncate">${office?.name||''}</p>
+              <p class="font-bold text-sm truncate">${p.contactName||office?.name||''}</p>
               <p class="text-xs" style="color:var(--text-muted)">${office?.city||''}${office?.verified? ' • موثّق':''}</p>
             </div>
           </a>
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <a href="tel:${office?.phone}" class="btn-charcoal text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.7a2 2 0 01-.5 2.1L8 9.7a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.8.5 2.7.6a2 2 0 011.7 2Z"/></svg>اتصال</a>
-            <a href="https://wa.me/966${(office?.whatsapp||'').replace(/^0/,'')}" target="_blank" class="btn-primary text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2Zm5.6 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.1.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 2.4 1.3 1.1 2.3 1.5 2.6 1.6.2.1.4.1.5-.1l.6-.8c.2-.3.4-.2.6-.1l1.8.9c.2.1.4.2.4.3.1.2.1.9-.1 1.3Z"/></svg>واتساب</a>
+            <a href="tel:${p.phone||office?.phone||''}" class="btn-charcoal text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.7a2 2 0 01-.5 2.1L8 9.7a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.8.5 2.7.6a2 2 0 011.7 2Z"/></svg>اتصال</a>
+            <a href="https://wa.me/${waNumber(p.whatsapp||p.phone||office?.whatsapp||'')}" target="_blank" class="btn-primary text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2Zm5.6 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.1.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 2.4 1.3 1.1 2.3 1.5 2.6 1.6.2.1.4.1.5-.1l.6-.8c.2-.3.4-.2.6-.1l1.8.9c.2.1.4.2.4.3.1.2.1.9-.1 1.3Z"/></svg>واتساب</a>
           </div>
           <button onclick="openInquiry('${p.id}')" class="btn-ghost w-full text-sm">مراسلة</button>
           <a href="#/office/${office?.id}" class="block text-center text-xs font-bold mt-3" style="color:var(--accent)">عرض جميع عقارات المكتب</a>
@@ -866,7 +930,7 @@ function viewPropertyDetails(id){
       <button onclick="galleryDialog.close()" class="w-8 h-8 rounded-full hover:bg-black/5">✕</button>
     </div>
     <div class="grid grid-cols-2 gap-2 p-3">
-      ${[0,1,2,3,4].map(i=>`<div class="aspect-[4/3] rounded-xl overflow-hidden">${placeholderImg(i,p.type,true)}</div>`).join('')}
+      ${[0,1,2,3,4].map(i=>`<div class="aspect-[4/3] rounded-xl overflow-hidden">${listingImage(p,i,p.type,true,i)}</div>`).join('')}
     </div>
   </dialog>
   <dialog id="inquiryDialog" class="rounded-2xl p-0 w-[92%] max-w-md" style="background:var(--surface); border:1px solid var(--border);">
@@ -1032,10 +1096,10 @@ function viewVehicleDetails(id){
   const specRows = [['سنة الصنع',v.year],['الممشى',fmtNum(v.mileage)+' كم'],['نوع الوقود',v.fuel],['ناقل الحركة',v.trans],['الحالة',v.condition]];
   return `<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
     <div class="grid md:grid-cols-3 gap-2 rounded-2xl overflow-hidden mb-6" style="height:360px">
-      <div class="md:col-span-2">${placeholderImg(0,'سيارة',true)}</div>
+      <div class="md:col-span-2">${listingImage(v,0,'سيارة',true,0)}</div>
       <div class="grid grid-rows-2 gap-2 hidden md:grid">
-        <div>${placeholderImg(1,'سيارة',true)}</div>
-        <div>${placeholderImg(2,'سيارة',true)}</div>
+        <div>${listingImage(v,1,'سيارة',true,1)}</div>
+        <div>${listingImage(v,2,'سيارة',true,2)}</div>
       </div>
     </div>
     <div class="grid lg:grid-cols-[1fr_360px] gap-8">
@@ -1056,11 +1120,11 @@ function viewVehicleDetails(id){
           <h3 class="font-bold mb-3">تواصل مع البائع</h3>
           <a href="#/office/${office?.id}" class="flex items-center gap-3 mb-4">
             <div class="w-12 h-12 rounded-xl shrink-0" style="background:${office?.grad}"></div>
-            <p class="font-bold text-sm">${office?.name||''}</p>
+            <p class="font-bold text-sm">${v.contactName||office?.name||''}</p>
           </a>
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <a href="tel:${office?.phone}" class="btn-charcoal text-sm text-center">اتصال</a>
-            <a href="https://wa.me/966${(office?.whatsapp||'').replace(/^0/,'')}" target="_blank" class="btn-primary text-sm text-center">واتساب</a>
+            <a href="tel:${v.phone||office?.phone||''}" class="btn-charcoal text-sm text-center">اتصال</a>
+            <a href="https://wa.me/${waNumber(v.whatsapp||v.phone||office?.whatsapp||'')}" target="_blank" class="btn-primary text-sm text-center">واتساب</a>
           </div>
           <button onclick="toggleFavorite('${v.id}')" class="btn-ghost w-full text-sm">${favorites.has(v.id)?'إزالة من المفضلة':'إضافة للمفضلة'}</button>
         </div>
@@ -1071,7 +1135,7 @@ function viewVehicleDetails(id){
 
 /* ===================== ADD LISTING WIZARD ===================== */
 let wizard = null;
-function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال'}; }
+function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال', mediaFiles:[], mediaPreviews:[]}; }
 function viewAddListing(){
   if(!wizard) wizard = freshWizard();
   const w = wizard;
@@ -1116,10 +1180,10 @@ function wizardStep(){
     } else {
       return `<h2 class="font-bold text-lg mb-4">بيانات السيارة الأساسية</h2>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="field-label">الشركة المصنعة</label><input class="field-input" value="${w.brand}" oninput="wSet('brand',this.value)" placeholder="تويوتا"></div>
-        <div><label class="field-label">الموديل</label><input class="field-input" value="${w.model}" oninput="wSet('model',this.value)" placeholder="كامري"></div>
-        <div><label class="field-label">سنة الصنع</label><input type="number" class="field-input" value="${w.year}" oninput="wSet('year',this.value)" placeholder="2023"></div>
-        <div><label class="field-label">الممشى (كم)</label><input type="number" class="field-input" value="${w.mileage}" oninput="wSet('mileage',this.value)" placeholder="20000"></div>
+        <div><label class="field-label">الشركة المصنعة</label><input class="field-input" value="${w.brand}" oninput="wInput('brand',this.value)" placeholder="تويوتا"></div>
+        <div><label class="field-label">الموديل</label><input class="field-input" value="${w.model}" oninput="wInput('model',this.value)" placeholder="كامري"></div>
+        <div><label class="field-label">سنة الصنع</label><input type="number" class="field-input" value="${w.year}" oninput="wInput('year',this.value)" placeholder="2023"></div>
+        <div><label class="field-label">الممشى (كم)</label><input type="number" class="field-input" value="${w.mileage}" oninput="wInput('mileage',this.value)" placeholder="20000"></div>
         <div><label class="field-label">نوع الوقود</label><select class="field-input" onchange="wSet('fuel',this.value)"><option value="">اختر</option>${['بنزين','ديزل','كهرباء','هجين'].map(f=>`<option ${w.fuel===f?'selected':''}>${f}</option>`).join('')}</select></div>
         <div><label class="field-label">ناقل الحركة</label><select class="field-input" onchange="wSet('trans',this.value)"><option value="">اختر</option><option ${w.trans==='أوتوماتيك'?'selected':''}>أوتوماتيك</option><option ${w.trans==='مانيوال'?'selected':''}>مانيوال</option></select></div>
       </div>
@@ -1129,17 +1193,17 @@ function wizardStep(){
   if(w.step===3){
     return `<h2 class="font-bold text-lg mb-4">المعلومات الأساسية</h2>
     <div class="space-y-3">
-      <div><label class="field-label">عنوان الإعلان</label><input class="field-input" value="${w.title}" oninput="wSet('title',this.value)" placeholder="مثال: فيلا للبيع في حي النرجس"></div>
+      <div><label class="field-label">عنوان الإعلان</label><input class="field-input" value="${w.title}" oninput="wInput('title',this.value)" placeholder="مثال: فيلا للبيع في حي النرجس"></div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="field-label">السعر (ر.س)</label><input type="number" class="field-input" value="${w.price}" oninput="wSet('price',this.value)"></div>
-        ${w.kind==='property'? `<div><label class="field-label">المساحة (م²)</label><input type="number" class="field-input" value="${w.area}" oninput="wSet('area',this.value)"></div>` : `<div><label class="field-label">حالة السيارة</label><select class="field-input" onchange="wSet('condition',this.value)"><option value="">اختر</option><option ${w.condition==='جديدة'?'selected':''}>جديدة</option><option ${w.condition==='مستعمل بحالة ممتازة'?'selected':''}>مستعمل بحالة ممتازة</option><option ${w.condition==='مستعمل بحالة جيدة'?'selected':''}>مستعمل بحالة جيدة</option></select></div>`}
+        <div><label class="field-label">السعر (ر.س)</label><input type="number" class="field-input" value="${w.price}" oninput="wInput('price',this.value)"></div>
+        ${w.kind==='property'? `<div><label class="field-label">المساحة (م²)</label><input type="number" class="field-input" value="${w.area}" oninput="wInput('area',this.value)"></div>` : `<div><label class="field-label">حالة السيارة</label><select class="field-input" onchange="wSet('condition',this.value)"><option value="">اختر</option><option ${w.condition==='جديدة'?'selected':''}>جديدة</option><option ${w.condition==='مستعمل بحالة ممتازة'?'selected':''}>مستعمل بحالة ممتازة</option><option ${w.condition==='مستعمل بحالة جيدة'?'selected':''}>مستعمل بحالة جيدة</option></select></div>`}
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div><label class="field-label">المدينة</label><select class="field-input" onchange="wSet('city',this.value)"><option value="">اختر</option>${CITIES.map(c=>`<option ${w.city===c?'selected':''}>${c}</option>`).join('')}</select></div>
-        ${w.kind==='property'? `<div><label class="field-label">الحي</label><input class="field-input" value="${w.hood}" oninput="wSet('hood',this.value)"></div>` : ''}
+        ${w.kind==='property'? `<div><label class="field-label">الحي</label><input class="field-input" value="${w.hood}" oninput="wInput('hood',this.value)"></div>` : ''}
       </div>
-      ${w.kind==='property'? `<div><label class="field-label">الشارع</label><input class="field-input" value="${w.street}" oninput="wSet('street',this.value)"></div>`:''}
-      <div><label class="field-label">الوصف</label><textarea rows="3" class="field-input" oninput="wSet('desc',this.value)">${w.desc}</textarea></div>
+      ${w.kind==='property'? `<div><label class="field-label">الشارع</label><input class="field-input" value="${w.street}" oninput="wInput('street',this.value)"></div>`:''}
+      <div><label class="field-label">الوصف</label><textarea rows="3" class="field-input" oninput="wInput('desc',this.value)">${w.desc}</textarea></div>
     </div>
     ${wizardNav(true, w.title && w.price && w.city)}`;
   }
@@ -1147,12 +1211,12 @@ function wizardStep(){
     if(w.kind==='property'){
       return `<h2 class="font-bold text-lg mb-4">مواصفات العقار</h2>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="field-label">عدد الغرف</label><input type="number" class="field-input" value="${w.rooms}" oninput="wSet('rooms',this.value)"></div>
-        <div><label class="field-label">دورات المياه</label><input type="number" class="field-input" value="${w.baths}" oninput="wSet('baths',this.value)"></div>
-        <div><label class="field-label">الصالات</label><input type="number" class="field-input" value="${w.living}" oninput="wSet('living',this.value)"></div>
+        <div><label class="field-label">عدد الغرف</label><input type="number" class="field-input" value="${w.rooms}" oninput="wInput('rooms',this.value)"></div>
+        <div><label class="field-label">دورات المياه</label><input type="number" class="field-input" value="${w.baths}" oninput="wInput('baths',this.value)"></div>
+        <div><label class="field-label">الصالات</label><input type="number" class="field-input" value="${w.living}" oninput="wInput('living',this.value)"></div>
         <div><label class="field-label">عمر العقار</label><select class="field-input" onchange="wSet('age',this.value)"><option value="">اختر</option>${['جديد','أقل من 5 سنوات','متوسط','مستخدم'].map(a=>`<option ${w.age===a?'selected':''}>${a}</option>`).join('')}</select></div>
-        <div><label class="field-label">عرض الشارع (م)</label><input type="number" class="field-input" value="${w.swidth}" oninput="wSet('swidth',this.value)"></div>
-        <div><label class="field-label">الواجهة</label><input class="field-input" value="${w.facing}" oninput="wSet('facing',this.value)"></div>
+        <div><label class="field-label">عرض الشارع (م)</label><input type="number" class="field-input" value="${w.swidth}" oninput="wInput('swidth',this.value)"></div>
+        <div><label class="field-label">الواجهة</label><input class="field-input" value="${w.facing}" oninput="wInput('facing',this.value)"></div>
       </div>
       <div class="mt-3 flex gap-2">
         <button onclick="wSet('furnished','مفروش')" class="chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${w.furnished==='مفروش'}">مفروش</button>
@@ -1183,20 +1247,38 @@ function wizardStep(){
 }
 function mediaStepBody(){
   const w = wizard;
-  w.media = w.media || [0,1,2];
-  return `<p class="text-sm mb-3" style="color:var(--text-muted)">أضف صوراً توضيحية (تجريبية) لإعلانك. يمكنك إعادة ترتيبها واختيار الصورة الرئيسية.</p>
+  w.mediaFiles = w.mediaFiles || [];
+  w.mediaPreviews = w.mediaPreviews || [];
+  return `<p class="text-sm mb-3" style="color:var(--text-muted)">ارفع صور العقار أو السيارة من جهازك. يمكنك رفع حتى 8 صور.</p>
   <div class="grid grid-cols-3 gap-3">
-    ${w.media.map((m,i)=>`<div class="relative aspect-square rounded-xl overflow-hidden">${placeholderImg(m, w.kind==='vehicle'?'سيارة':(w.ptype||'فيلا'))}
+    ${w.mediaPreviews.map((src,i)=>`<div class="relative aspect-square rounded-xl overflow-hidden">
+      <img src="${src}" alt="" class="w-full h-full object-cover">
       ${i===0? `<span class="absolute top-1.5 right-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent); color:var(--accent-contrast)">الرئيسية</span>`:''}
-      <button onclick="removeMedia(${i})" class="absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:rgba(16,15,12,.6); color:#fff">✕</button>
+      <button type="button" onclick="removeMedia(${i})" class="absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:rgba(16,15,12,.6); color:#fff">✕</button>
     </div>`).join('')}
-    <button onclick="addMedia()" class="aspect-square rounded-xl border-2 border-dashed flex items-center justify-center tap" style="border-color:var(--border)">
+    ${w.mediaPreviews.length<8?`<label class="aspect-square rounded-xl border-2 border-dashed flex flex-col gap-2 items-center justify-center tap cursor-pointer" style="border-color:var(--border)">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-    </button>
-  </div>`;
+      <span class="text-xs" style="color:var(--text-muted)">اختيار صور</span>
+      <input type="file" accept="image/*" multiple class="hidden" onchange="handleMediaFiles(event)">
+    </label>`:''}
+  </div>
+  <p class="text-xs mt-3" style="color:var(--text-muted)">الحد الأقصى 8 صور، و10MB للصورة الواحدة.</p>`;
 }
-function addMedia(){ wizard.media = wizard.media||[0,1,2]; wizard.media.push(wizard.media.length); renderWizard(); }
-function removeMedia(i){ wizard.media.splice(i,1); renderWizard(); }
+function handleMediaFiles(e){
+  const files = Array.from(e.target.files||[]).filter(f=>f.type.startsWith('image/') && f.size<=10*1024*1024);
+  const room = Math.max(0, 8-(wizard.mediaFiles?.length||0));
+  files.slice(0,room).forEach(file=>{
+    wizard.mediaFiles.push(file);
+    wizard.mediaPreviews.push(URL.createObjectURL(file));
+  });
+  renderWizard();
+}
+function removeMedia(i){
+  if(wizard.mediaPreviews?.[i]) URL.revokeObjectURL(wizard.mediaPreviews[i]);
+  wizard.mediaFiles.splice(i,1);
+  wizard.mediaPreviews.splice(i,1);
+  renderWizard();
+}
 function locationStepBody(){
   const w = wizard;
   return `<p class="text-sm mb-3" style="color:var(--text-muted)">حدد موقع العقار على الخريطة (تجريبي) بالنقر لتحريك الدبوس.</p>
@@ -1223,10 +1305,10 @@ function contactStepBody(){
   const w = wizard;
   return `<h2 class="font-bold text-lg mb-4">معلومات التواصل</h2>
   <div class="space-y-3">
-    <div><label class="field-label">اسم المعلن / المكتب</label><input class="field-input" value="${w.contactName}" oninput="wSet('contactName',this.value)" placeholder="اسمك أو اسم المكتب"></div>
+    <div><label class="field-label">اسم المعلن / المكتب</label><input class="field-input" value="${w.contactName}" oninput="wInput('contactName',this.value)" placeholder="اسمك أو اسم المكتب"></div>
     <div class="grid grid-cols-2 gap-3">
-      <div><label class="field-label">رقم الجوال</label><input class="field-input" value="${w.phone}" oninput="wSet('phone',this.value)" placeholder="05xxxxxxxx"></div>
-      <div><label class="field-label">رقم واتساب</label><input class="field-input" value="${w.whatsapp}" oninput="wSet('whatsapp',this.value)" placeholder="05xxxxxxxx"></div>
+      <div><label class="field-label">رقم الجوال</label><input class="field-input" value="${w.phone}" oninput="wInput('phone',this.value)" placeholder="05xxxxxxxx"></div>
+      <div><label class="field-label">رقم واتساب</label><input class="field-input" value="${w.whatsapp}" oninput="wInput('whatsapp',this.value)" placeholder="05xxxxxxxx"></div>
     </div>
     <div><label class="field-label">وسيلة التواصل المفضلة</label>
       <div class="flex gap-2">
@@ -1257,25 +1339,80 @@ function wizardNav(showBack, canNext){
   </div>`;
 }
 function wSet(k,v){ wizard[k]=v; renderWizard(); }
+function wInput(k,v){ wizard[k]=v; }
 function renderWizard(){ const el = document.getElementById('wizardBody'); if(el) el.innerHTML = wizardStep(); }
 function wizNext(){ wizard.step++; renderAddPage(); }
 function wizPrev(){ wizard.step--; renderAddPage(); }
 function renderAddPage(){ document.getElementById('app').innerHTML = `<div class="animate-in">${viewAddListing()}</div>`; window.scrollTo({top:0}); }
 function saveDraft(){ toast('تم حفظ الإعلان كمسودة'); }
-function publishListing(){
-  const w = wizard;
-  const id = (w.kind==='property'?'up':'uv') + Date.now();
-  if(w.kind==='property'){
-    userProperties.push({id, title:w.title, tx:w.tx, type:w.ptype, city:w.city, hood:w.hood||'-', price:+w.price||0, area:+w.area||0, rooms:+w.rooms||null, baths:+w.baths||null, living:+w.living||null, age:w.age||null, furnished:w.furnished||null, street:+w.swidth||null, facing:w.facing||null, office:'rowaa', featured:false, ref:'DL-'+(2000+userProperties.length+1), desc:w.desc||'لا يوجد وصف إضافي.'});
-    LS.set('dalalah_user_properties', userProperties);
-  } else {
-    userVehicles.push({id, brand:w.brand, model:w.model, year:+w.year||2024, tx:w.tx, price:+w.price||0, mileage:+w.mileage||0, fuel:w.fuel||'بنزين', trans:w.trans||'أوتوماتيك', city:w.city, condition:w.condition||'مستعمل', office:'rowaa', ref:'DLC-'+(300+userVehicles.length+1), desc:w.desc||'لا يوجد وصف إضافي.'});
-    LS.set('dalalah_user_vehicles', userVehicles);
+async function uploadListingMedia(files){
+  if(!currentUser || !files?.length) return [];
+  const urls = [];
+  for(const file of files){
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const path = currentUser.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '-' + safeName;
+    const {error} = await supabaseClient.storage.from('listing-media').upload(path,file,{cacheControl:'3600',upsert:false});
+    if(error){ console.error(error); throw new Error('تعذر رفع إحدى الصور'); }
+    const {data} = supabaseClient.storage.from('listing-media').getPublicUrl(path);
+    if(data?.publicUrl) urls.push(data.publicUrl);
   }
-  wizard = freshWizard();
-  navigate('/property/'+id, {});
-  if(userVehicles.find(v=>v.id===id)) navigate('/vehicle/'+id, {});
-  toast('تم نشر إعلانك بنجاح');
+  return urls;
+}
+async function publishListing(){
+  const w = wizard;
+  if(!currentUser){
+    toast('سجّل الدخول أولاً لنشر إعلانك');
+    setTimeout(()=>navigate('/account',{}),700);
+    return;
+  }
+  try{
+    const publishBtn = document.querySelector('button[onclick="publishListing()"]');
+    if(publishBtn){ publishBtn.disabled=true; publishBtn.textContent='جاري النشر...'; }
+    const mediaUrls = await uploadListingMedia(w.mediaFiles||[]);
+    const payload = {
+      owner_id:currentUser.id,
+      kind:w.kind,
+      status:'published',
+      title:w.kind==='property' ? w.title : (w.brand+' '+w.model+' '+w.year),
+      transaction_type:w.tx,
+      property_type:w.kind==='property'?w.ptype:null,
+      price:Number(w.price||0),
+      city:w.city||null,
+      neighborhood:w.kind==='property'?(w.hood||null):null,
+      street:w.kind==='property'?(w.street||null):null,
+      description:w.desc||null,
+      area:w.kind==='property'?Number(w.area||0):null,
+      rooms:w.kind==='property'?(Number(w.rooms)||null):null,
+      baths:w.kind==='property'?(Number(w.baths)||null):null,
+      living_rooms:w.kind==='property'?(Number(w.living)||null):null,
+      property_age:w.kind==='property'?(w.age||null):null,
+      furnished:w.kind==='property'?(w.furnished||null):null,
+      street_width:w.kind==='property'?(Number(w.swidth)||null):null,
+      facing:w.kind==='property'?(w.facing||null):null,
+      brand:w.kind==='vehicle'?(w.brand||null):null,
+      model:w.kind==='vehicle'?(w.model||null):null,
+      vehicle_year:w.kind==='vehicle'?(Number(w.year)||null):null,
+      mileage:w.kind==='vehicle'?(Number(w.mileage)||0):null,
+      fuel:w.kind==='vehicle'?(w.fuel||null):null,
+      transmission:w.kind==='vehicle'?(w.trans||null):null,
+      vehicle_condition:w.kind==='vehicle'?(w.condition||null):null,
+      contact_name:w.contactName||null,
+      phone:w.phone||null,
+      whatsapp:w.whatsapp||w.phone||null,
+      preferred_contact:w.prefer||null,
+      media_urls:mediaUrls
+    };
+    const {data,error} = await supabaseClient.from('listings').insert(payload).select().single();
+    if(error) throw error;
+    await loadRemoteListings();
+    wizard = freshWizard();
+    toast('تم نشر إعلانك بنجاح');
+    navigate(w.kind==='vehicle'?'/vehicle/'+data.id:'/property/'+data.id,{});
+  }catch(err){
+    console.error(err);
+    toast(err?.message || 'تعذر نشر الإعلان');
+    renderWizard();
+  }
 }
 
 /* ===================== DASHBOARD (OFFICE) ===================== */
@@ -1283,8 +1420,8 @@ const CURRENT_OFFICE = 'rowaa';
 function viewDashboard(params){
   const tab = params.get('tab')||'home';
   const o = officeById(CURRENT_OFFICE);
-  const myProps = properties().filter(p=>p.office===CURRENT_OFFICE);
-  const myVehicles = vehicles().filter(v=>v.office===CURRENT_OFFICE);
+  const myProps = properties().filter(p=>p.ownerId ? p.ownerId===currentUser?.id : p.office===CURRENT_OFFICE);
+  const myVehicles = vehicles().filter(v=>v.ownerId ? v.ownerId===currentUser?.id : v.office===CURRENT_OFFICE);
   const all = [...myProps, ...myVehicles];
   const active = all.filter(x=>x.status==='active').length;
 
@@ -1406,30 +1543,77 @@ function viewFavorites(embedded){
   </div>`;
 }
 function viewAccount(){
+  if(currentUser){
+    return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      <div class="surface rounded-2xl p-6">
+        <h1 class="font-display text-2xl font-bold mb-2">حسابي</h1>
+        <p class="text-sm mb-5" style="color:var(--text-muted)">مسجل الدخول باسم <b>${currentUser.email||'مستخدم دِلالة'}</b></p>
+        <div class="flex flex-wrap gap-2">
+          <a href="#/add" class="btn-primary">إضافة إعلان</a>
+          <a href="#/dashboard" class="btn-ghost">إعلاناتي</a>
+          <button onclick="doLogout()" class="btn-ghost">تسجيل الخروج</button>
+        </div>
+      </div>
+    </div>`;
+  }
   return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
     <h1 class="font-display text-2xl font-bold mb-1">حسابي</h1>
-    <p class="text-sm mb-8" style="color:var(--text-muted)">تصفح دِلالة بدون حساب، أو أنشئ حساباً لحفظ المفضلة وعمليات البحث.</p>
-    <div class="grid sm:grid-cols-2 gap-5 mb-10">
+    <p class="text-sm mb-8" style="color:var(--text-muted)">سجّل الدخول أو أنشئ حساباً لنشر إعلاناتك وإدارتها.</p>
+    <div class="grid sm:grid-cols-2 gap-5">
       <div class="surface rounded-2xl p-6">
         <h3 class="font-bold mb-3">تسجيل الدخول</h3>
         <form onsubmit="return doLogin(event)" class="space-y-3">
-          <input required class="field-input" placeholder="رقم الجوال">
-          <input required type="password" class="field-input" placeholder="كلمة المرور">
+          <input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني">
+          <input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور">
           <button class="btn-primary w-full">دخول</button>
         </form>
       </div>
       <div class="surface rounded-2xl p-6">
         <h3 class="font-bold mb-3">حساب جديد</h3>
-        <p class="text-sm mb-4" style="color:var(--text-muted)">أنشئ حساباً لحفظ عقاراتك المفضلة وعمليات البحث والتواصل مع المكاتب.</p>
-        <button onclick="doLogin(event)" class="btn-ghost w-full">إنشاء حساب</button>
+        <form onsubmit="return doSignUp(event)" class="space-y-3">
+          <input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني">
+          <input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور (6 أحرف على الأقل)">
+          <button class="btn-primary w-full">إنشاء حساب</button>
+        </form>
       </div>
-    </div>
-    <div class="grid sm:grid-cols-4 gap-3">
-      ${[['المفضلة','/favorites'],['عمليات البحث المحفوظة','/account'],['إعلاناتي','/dashboard'],['الرسائل','/dashboard?tab=messages']].map(([label,href])=>`<a href="#${href}" class="surface rounded-xl p-4 text-center hover-lift tap"><p class="font-bold text-sm">${label}</p></a>`).join('')}
     </div>
   </div>`;
 }
-function doLogin(e){ if(e) e.preventDefault(); toast('هذه نسخة تجريبية — تسجيل الدخول غير مفعّل'); return false; }
+async function doLogin(e){
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const email = String(fd.get('email')||'').trim();
+  const password = String(fd.get('password')||'');
+  const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){ toast('تعذر تسجيل الدخول: '+error.message); return false; }
+  currentUser = data.user;
+  toast('تم تسجيل الدخول');
+  await loadRemoteListings();
+  navigate('/dashboard',{});
+  return false;
+}
+async function doSignUp(e){
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const email = String(fd.get('email')||'').trim();
+  const password = String(fd.get('password')||'');
+  const {data,error} = await supabaseClient.auth.signUp({email,password});
+  if(error){ toast('تعذر إنشاء الحساب: '+error.message); return false; }
+  currentUser = data.session?.user || data.user || null;
+  if(data.session){
+    toast('تم إنشاء الحساب وتسجيل الدخول');
+    navigate('/add',{});
+  }else{
+    toast('تم إنشاء الحساب. تحقق من بريدك إذا طُلب تأكيده.');
+  }
+  return false;
+}
+async function doLogout(){
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  toast('تم تسجيل الخروج');
+  navigate('/',{});
+}
 
 /* ===================== ADMIN ===================== */
 function viewAdmin(params){
