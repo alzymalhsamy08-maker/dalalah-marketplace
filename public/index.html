@@ -350,7 +350,8 @@ function dbListingToUi(r){
     tx:r.transaction_type || 'للبيع',
     price:Number(r.price||0),
     city:r.city || '-',
-    office:'rowaa',
+    office:null,
+    createdAt:r.created_at || null,
     ref:(r.kind==='vehicle'?'DLC-':'DL-') + String(r.id).slice(0,8).toUpperCase(),
     desc:r.description || 'لا يوجد وصف إضافي.',
     featured:false,
@@ -391,6 +392,23 @@ function officeById(id){ const o = OFFICES.find(o=>o.id===id); if(!o) return nul
 function saveFav(){ LS.set('dalalah_favorites', [...favorites]); }
 function fmtPrice(n){ return n.toLocaleString('en-US') + ' ر.س'; }
 function fmtNum(n){ return n.toLocaleString('en-US'); }
+function listingAgeText(createdAt){
+  if(!createdAt) return '';
+  const created = new Date(createdAt);
+  if(Number.isNaN(created.getTime())) return '';
+  const diffMs = Math.max(0, Date.now() - created.getTime());
+  const mins = Math.floor(diffMs / 60000);
+  if(mins < 1) return 'الآن';
+  if(mins < 60) return `منذ ${mins} ${mins===1?'دقيقة':'دقائق'}`;
+  const hours = Math.floor(mins / 60);
+  if(hours < 24) return `منذ ${hours} ${hours===1?'ساعة':'ساعات'}`;
+  const days = Math.floor(hours / 24);
+  if(days < 30) return `منذ ${days} ${days===1?'يوم':'أيام'}`;
+  const months = Math.floor(days / 30);
+  if(months < 12) return `منذ ${months} ${months===1?'شهر':'أشهر'}`;
+  const years = Math.floor(months / 12);
+  return `منذ ${years} ${years===1?'سنة':'سنوات'}`;
+}
 
 function toast(msg){
   const t = document.getElementById('toast');
@@ -496,8 +514,8 @@ function propertyCard(p, idx){
       <p class="text-xs mt-1" style="color:var(--text-muted)">${p.city} - ${p.hood}</p>
       <p class="text-xs mt-1.5" style="color:var(--text-muted)">${p.area} م²${specs.length? ' • '+specs.join(' • '):''}</p>
       <div class="flex items-center justify-between mt-3 pt-3 border-t" style="border-color:var(--border)">
-        <span class="text-xs font-bold truncate" style="color:var(--text-muted)">${office? office.name:''}</span>
-        <span class="text-[11px]" style="color:var(--text-muted)">منذ ${p.ref? (parseInt(p.ref.split('-')[1])%7)+1 : 2} أيام</span>
+        <span class="text-xs font-bold truncate" style="color:var(--text-muted)">${p.contactName || (office? office.name:'معلن')}</span>
+        <span class="text-[11px]" style="color:var(--text-muted)">${p.createdAt ? listingAgeText(p.createdAt) : `منذ ${p.ref? (parseInt(p.ref.split('-')[1])%7)+1 : 2} أيام`}</span>
       </div>
     </div>
   </a>`;
