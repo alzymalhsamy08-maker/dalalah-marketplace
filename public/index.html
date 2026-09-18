@@ -386,8 +386,8 @@ async function initBackend(){
     });
   }catch(err){ console.error('Supabase init:',err); }
 }
-function properties(){ return [...BASE_PROPERTIES, ...remoteProperties, ...userProperties].map(p=>({...p, status: statusOverrides[p.id]||p.status||'active'})); }
-function vehicles(){ return [...BASE_VEHICLES, ...remoteVehicles, ...userVehicles].map(v=>({...v, status: statusOverrides[v.id]||v.status||'active'})); }
+function properties(){ return remoteProperties.map(p=>({...p, status: statusOverrides[p.id]||p.status||'active'})); }
+function vehicles(){ return remoteVehicles.map(v=>({...v, status: statusOverrides[v.id]||v.status||'active'})); }
 function officeById(id){ const o = OFFICES.find(o=>o.id===id); if(!o) return null; return {...o, verified: officeVerifyOverrides[id]!==undefined? officeVerifyOverrides[id] : o.verified}; }
 function saveFav(){ LS.set('dalalah_favorites', [...favorites]); }
 function fmtPrice(n){ return n.toLocaleString('en-US') + ' ر.س'; }
