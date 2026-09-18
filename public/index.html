@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -556,7 +556,7 @@ function propertyCard(p, idx){
     </div>
   </a>`;
 }
-function statusLabel(s){ return {paused:'متوقف', sold:'مباع', rented:'مؤجر', hidden:'مخفي'}[s]||s; }
+function statusLabel(s){ return {draft:'مسودة', paused:'متوقف', sold:'مباع', rented:'مؤجر', hidden:'مخفي'}[s]||s; }
 
 function vehicleCard(v, idx){
   const fav = favorites.has(v.id);
@@ -1484,7 +1484,7 @@ function previewStepBody(){
   <p class="text-xs text-center mt-4" style="color:var(--text-muted)">هكذا سيظهر إعلانك في نتائج البحث.</p>
   <div class="flex flex-col sm:flex-row gap-2 mt-6">
     <button onclick="wizPrev()" class="btn-ghost flex-1">رجوع</button>
-    <button onclick="saveDraft()" class="btn-ghost flex-1">حفظ كمسودة</button>
+
     <button onclick="publishListing()" class="btn-primary flex-1">نشر الإعلان</button>
   </div>`;
 }
@@ -1669,6 +1669,7 @@ function dashListings(all){
               <button onclick="setListingStatus('${x.id}','paused')" class="chip rounded-full px-2.5 py-1 text-xs tap">إيقاف</button>
               <button onclick="setListingStatus('${x.id}','${x.brand?'rented':'sold'}')" class="chip rounded-full px-2.5 py-1 text-xs tap">${x.brand?'وضع كمؤجر':'وضع كمباع'}</button>
               <button onclick="setListingStatus('${x.id}','active')" class="chip rounded-full px-2.5 py-1 text-xs tap">إعادة نشر</button>
+              <button onclick="deleteOwnListing('${x.id}')" class="chip rounded-full px-2.5 py-1 text-xs tap" style="color:var(--danger)">حذف</button>
             </div>
           </td>
         </tr>`).join('')}
@@ -1678,10 +1679,63 @@ function dashListings(all){
     ${!all.length? emptyState('لا توجد إعلانات بعد','ابدأ بإضافة أول إعلان لمكتبك.'):''}
   </div>`;
 }
-function setListingStatus(id, status){
-  statusOverrides[id] = status;
-  LS.set('dalalah_status', statusOverrides);
+async function setListingStatus(id, status){
+  if(!currentUser){
+    toast('سجّل الدخول أولاً');
+    return;
+  }
+  const dbStatus = status==='active' ? 'published' : status;
+  const {error} = await supabaseClient
+    .from('listings')
+    .update({status:dbStatus, updated_at:new Date().toISOString()})
+    .eq('id',id)
+    .eq('owner_id',currentUser.id);
+
+  if(error){
+    console.error(error);
+    toast('تعذر تحديث حالة الإعلان');
+    return;
+  }
+
+  await loadRemoteListings();
   toast('تم تحديث حالة الإعلان');
+  render();
+}
+
+async function deleteOwnListing(id){
+  if(!currentUser){
+    toast('سجّل الدخول أولاً');
+    return;
+  }
+  if(!confirm('هل أنت متأكد من حذف الإعلان نهائياً؟')) return;
+
+  const item = [...remoteProperties, ...remoteVehicles].find(x=>x.id===id && x.ownerId===currentUser.id);
+  const {error} = await supabaseClient
+    .from('listings')
+    .delete()
+    .eq('id',id)
+    .eq('owner_id',currentUser.id);
+
+  if(error){
+    console.error(error);
+    toast('تعذر حذف الإعلان');
+    return;
+  }
+
+  if(item?.mediaUrls?.length){
+    try{
+      const prefix = SUPABASE_URL + '/storage/v1/object/public/listing-media/';
+      const paths = item.mediaUrls
+        .filter(u=>typeof u==='string' && u.startsWith(prefix))
+        .map(u=>decodeURIComponent(u.slice(prefix.length)));
+      if(paths.length) await supabaseClient.storage.from('listing-media').remove(paths);
+    }catch(err){
+      console.warn('Media cleanup skipped:', err);
+    }
+  }
+
+  await loadRemoteListings();
+  toast('تم حذف الإعلان');
   render();
 }
 function dashMessages(){
