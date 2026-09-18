@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -1418,46 +1418,75 @@ async function publishListing(){
 /* ===================== DASHBOARD (OFFICE) ===================== */
 const CURRENT_OFFICE = 'rowaa';
 function viewDashboard(params){
+  if(!currentUser){
+    return `<div class="max-w-xl mx-auto px-4 py-16 text-center">
+      <div class="surface rounded-2xl p-8">
+        <h1 class="font-display text-2xl font-bold mb-2">سجّل الدخول أولاً</h1>
+        <p class="text-sm mb-5" style="color:var(--text-muted)">لوحة الحساب تعرض إعلاناتك أنت فقط.</p>
+        <a href="#/account" class="btn-primary inline-block">تسجيل الدخول</a>
+      </div>
+    </div>`;
+  }
+
   const tab = params.get('tab')||'home';
-  const o = officeById(CURRENT_OFFICE);
-  const myProps = properties().filter(p=>p.ownerId ? p.ownerId===currentUser?.id : p.office===CURRENT_OFFICE);
-  const myVehicles = vehicles().filter(v=>v.ownerId ? v.ownerId===currentUser?.id : v.office===CURRENT_OFFICE);
+  const myProps = remoteProperties.filter(p=>p.ownerId===currentUser.id);
+  const myVehicles = remoteVehicles.filter(v=>v.ownerId===currentUser.id);
   const all = [...myProps, ...myVehicles];
   const active = all.filter(x=>x.status==='active').length;
 
   const tabs = [
-    ['home','الرئيسية'],['listings','إعلاناتي'],['add','إضافة إعلان'],['messages','الرسائل'],['favorites','المفضلة'],['office','بيانات المكتب'],['settings','الإعدادات']
+    ['home','الرئيسية'],
+    ['listings','إعلاناتي'],
+    ['add','إضافة إعلان'],
+    ['favorites','المفضلة'],
+    ['settings','الإعدادات']
   ];
 
   return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
     <div class="flex items-center gap-3 mb-8">
-      <div class="w-12 h-12 rounded-xl" style="background:${o.grad}"></div>
-      <div><h1 class="font-display text-xl font-bold">لوحة تحكم ${o.name}</h1><p class="text-xs" style="color:var(--text-muted)">مرحباً بك مجدداً</p></div>
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold" style="background:var(--accent-soft); color:var(--accent-dark)">د</div>
+      <div>
+        <h1 class="font-display text-xl font-bold">لوحة حسابي</h1>
+        <p class="text-xs" style="color:var(--text-muted)">${currentUser.email||''}</p>
+      </div>
     </div>
+
     <div class="grid lg:grid-cols-[220px_1fr] gap-6">
       <aside class="surface rounded-2xl p-3 h-fit overflow-x-scroll-x scrollbar-none flex lg:flex-col gap-1">
         ${tabs.map(([k,label])=>`<a href="#/dashboard?tab=${k}" class="shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold tap" style="${tab===k?'background:var(--accent);color:var(--accent-contrast)':'color:var(--text)'}">${label}</a>`).join('')}
       </aside>
       <div>
-        ${tab==='home'? dashHome(active, all) : tab==='listings'? dashListings(all) : tab==='add'? `<div class="surface rounded-2xl p-8 text-center"><p class="mb-4 font-bold">أضف إعلاناً جديداً لمكتبك</p><a href="#/add" class="btn-primary inline-block">فتح نموذج الإضافة</a></div>` : tab==='messages'? dashMessages() : tab==='favorites'? dashFavorites() : tab==='office'? dashOfficeInfo(o) : dashSettings()}
+        ${tab==='home'
+          ? dashHome(active, all)
+          : tab==='listings'
+          ? dashListings(all)
+          : tab==='add'
+          ? `<div class="surface rounded-2xl p-8 text-center"><p class="mb-4 font-bold">أضف إعلاناً جديداً</p><a href="#/add" class="btn-primary inline-block">فتح نموذج الإضافة</a></div>`
+          : tab==='favorites'
+          ? dashFavorites()
+          : dashSettings()}
       </div>
     </div>
   </div>`;
 }
 function dashHome(active, all){
-  const views = 1240 + all.length*37;
-  const contacts = 18 + all.length*2;
-  const saved = 9 + all.length;
-  return `<div class="grid sm:grid-cols-4 gap-4 mb-8">
-    ${[['الإعلانات النشطة',active],['إجمالي المشاهدات',fmtNum(views)],['طلبات التواصل',contacts],['الإعلانات المحفوظة',saved]].map(([k,v])=>`
-    <div class="surface rounded-2xl p-5"><p class="text-xs" style="color:var(--text-muted)">${k}</p><p class="font-display font-bold text-2xl mt-2">${v}</p></div>`).join('')}
-  </div>
-  <div class="surface rounded-2xl p-5">
-    <h3 class="font-bold mb-4">أداء المشاهدات (آخر 7 أيام)</h3>
-    <div class="flex items-end gap-2 h-40">
-      ${[40,65,50,80,55,90,70].map(h=>`<div class="flex-1 rounded-t-lg" style="height:${h}%; background:var(--accent-soft); position:relative;"><div class="absolute bottom-0 inset-x-0 rounded-t-lg" style="height:60%; background:var(--accent)"></div></div>`).join('')}
+  return `<div class="grid sm:grid-cols-2 gap-4 mb-8">
+    <div class="surface rounded-2xl p-5">
+      <p class="text-xs" style="color:var(--text-muted)">الإعلانات النشطة</p>
+      <p class="font-display font-bold text-2xl mt-2">${active}</p>
     </div>
-  </div>`;
+    <div class="surface rounded-2xl p-5">
+      <p class="text-xs" style="color:var(--text-muted)">إجمالي إعلاناتي</p>
+      <p class="font-display font-bold text-2xl mt-2">${all.length}</p>
+    </div>
+  </div>
+  ${all.length
+    ? `<div class="surface rounded-2xl p-6"><p class="font-bold">حسابك جاهز.</p><p class="text-sm mt-1" style="color:var(--text-muted)">يمكنك إضافة وإدارة إعلاناتك من دِلالة.</p></div>`
+    : `<div class="surface rounded-2xl p-8 text-center">
+        <p class="font-bold text-lg">ما عندك إعلانات حتى الآن</p>
+        <p class="text-sm mt-2 mb-5" style="color:var(--text-muted)">أضف أول عرض وسيظهر هنا وفي الموقع.</p>
+        <a href="#/add" class="btn-primary inline-block">إضافة أول إعلان</a>
+      </div>`}`;
 }
 function dashListings(all){
   return `<div class="surface rounded-2xl overflow-hidden">
