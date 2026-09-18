@@ -343,6 +343,7 @@ const SUPABASE_URL = 'https://gxatslatlogoiyxrgsip.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_p9zb0HHIKvMvzxtVAznUWg_7YYZc6Mm';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
+let currentProfile = null;
 let remoteProperties = [];
 let remoteVehicles = [];
 
@@ -379,14 +380,44 @@ async function loadRemoteListings(){
   remoteProperties = mapped.filter(x=>!x.brand);
   remoteVehicles = mapped.filter(x=>!!x.brand);
 }
+async function loadCurrentProfile(){
+  currentProfile = null;
+  if(!currentUser) return;
+  const {data,error} = await supabaseClient
+    .from('profiles')
+    .select('id,account_type,office_name')
+    .eq('id',currentUser.id)
+    .maybeSingle();
+  if(error){
+    console.error('Supabase profile:',error);
+    return;
+  }
+  currentProfile = data || null;
+}
+function isOfficeAccount(){
+  return currentProfile?.account_type === 'office';
+}
+function updateRoleUI(){
+  const office = isOfficeAccount();
+  document.querySelectorAll('a[href="#/add"], a[href="#/dashboard"]').forEach(el=>{
+    el.style.display = office ? '' : 'none';
+  });
+}
 async function initBackend(){
   try{
     const {data:{session}} = await supabaseClient.auth.getSession();
     currentUser = session?.user || null;
+    await loadCurrentProfile();
     await loadRemoteListings();
+    updateRoleUI();
     supabaseClient.auth.onAuthStateChange((_event, session)=>{
       currentUser = session?.user || null;
-      setTimeout(async()=>{ await loadRemoteListings(); render(); },0);
+      setTimeout(async()=>{
+        await loadCurrentProfile();
+        await loadRemoteListings();
+        render();
+        updateRoleUI();
+      },0);
     });
   }catch(err){ console.error('Supabase init:',err); }
 }
@@ -475,6 +506,7 @@ function render(){
   }catch(err){ console.error(err); html = view404(); }
   app.innerHTML = `<div class="animate-in">${html}</div>`;
   afterRender(path, params);
+  updateRoleUI();
 }
 
 function view404(){
@@ -1192,6 +1224,12 @@ function viewVehicleDetails(id){
 let wizard = null;
 function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال', latitude:null, longitude:null, mediaFiles:[], mediaPreviews:[]}; }
 function viewAddListing(){
+  if(!currentUser){
+    return `<div class="max-w-xl mx-auto px-4 py-16 text-center"><div class="surface rounded-2xl p-8"><h1 class="font-display text-2xl font-bold mb-2">سجّل الدخول أولاً</h1><p class="text-sm mb-5" style="color:var(--text-muted)">إضافة الإعلانات متاحة لحسابات المكاتب العقارية.</p><a href="#/account" class="btn-primary inline-block">تسجيل الدخول</a></div></div>`;
+  }
+  if(!isOfficeAccount()){
+    return `<div class="max-w-xl mx-auto px-4 py-16 text-center"><div class="surface rounded-2xl p-8"><h1 class="font-display text-2xl font-bold mb-2">هذه الميزة للمكاتب العقارية</h1><p class="text-sm mb-5" style="color:var(--text-muted)">حساب العميل مخصص للتصفح والمفضلة والتواصل مع المعلنين.</p><a href="#/" class="btn-primary inline-block">العودة للرئيسية</a></div></div>`;
+  }
   if(!wizard) wizard = freshWizard();
   const w = wizard;
   const totalSteps = w.kind==='property'? 8 : 6;
@@ -1487,6 +1525,11 @@ async function publishListing(){
     setTimeout(()=>navigate('/account',{}),700);
     return;
   }
+  if(!isOfficeAccount()){
+    toast('نشر الإعلانات متاح لحسابات المكاتب فقط');
+    navigate('/',{});
+    return;
+  }
   try{
     const publishBtn = document.querySelector('button[onclick="publishListing()"]');
     if(publishBtn){ publishBtn.disabled=true; publishBtn.textContent='جاري النشر...'; }
@@ -1543,13 +1586,10 @@ async function publishListing(){
 const CURRENT_OFFICE = 'rowaa';
 function viewDashboard(params){
   if(!currentUser){
-    return `<div class="max-w-xl mx-auto px-4 py-16 text-center">
-      <div class="surface rounded-2xl p-8">
-        <h1 class="font-display text-2xl font-bold mb-2">سجّل الدخول أولاً</h1>
-        <p class="text-sm mb-5" style="color:var(--text-muted)">لوحة الحساب تعرض إعلاناتك أنت فقط.</p>
-        <a href="#/account" class="btn-primary inline-block">تسجيل الدخول</a>
-      </div>
-    </div>`;
+    return `<div class="max-w-xl mx-auto px-4 py-16 text-center"><div class="surface rounded-2xl p-8"><h1 class="font-display text-2xl font-bold mb-2">سجّل الدخول أولاً</h1><p class="text-sm mb-5" style="color:var(--text-muted)">لوحة المكتب متاحة بعد تسجيل الدخول.</p><a href="#/account" class="btn-primary inline-block">تسجيل الدخول</a></div></div>`;
+  }
+  if(!isOfficeAccount()){
+    return `<div class="max-w-xl mx-auto px-4 py-16 text-center"><div class="surface rounded-2xl p-8"><h1 class="font-display text-2xl font-bold mb-2">حساب عميل</h1><p class="text-sm mb-5" style="color:var(--text-muted)">هذا الحساب مخصص للتصفح والمفضلة والتواصل. لوحة الإعلانات خاصة بالمكاتب العقارية.</p><a href="#/favorites" class="btn-primary inline-block">عرض المفضلة</a></div></div>`;
   }
 
   const tab = params.get('tab')||'home';
@@ -1697,40 +1737,17 @@ function viewFavorites(embedded){
 }
 function viewAccount(){
   if(currentUser){
-    return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-      <div class="surface rounded-2xl p-6">
-        <h1 class="font-display text-2xl font-bold mb-2">حسابي</h1>
-        <p class="text-sm mb-5" style="color:var(--text-muted)">مسجل الدخول باسم <b>${currentUser.email||'مستخدم دِلالة'}</b></p>
-        <div class="flex flex-wrap gap-2">
-          <a href="#/add" class="btn-primary">إضافة إعلان</a>
-          <a href="#/dashboard" class="btn-ghost">إعلاناتي</a>
-          <button onclick="doLogout()" class="btn-ghost">تسجيل الخروج</button>
-        </div>
-      </div>
-    </div>`;
+    const office = isOfficeAccount();
+    return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8"><div class="surface rounded-2xl p-6"><div class="flex items-start justify-between gap-3 mb-4"><div><h1 class="font-display text-2xl font-bold mb-1">${office?'حساب مكتب عقاري':'حساب عميل'}</h1><p class="text-sm" style="color:var(--text-muted)">مسجل الدخول باسم <b>${currentUser.email||'مستخدم دِلالة'}</b></p>${office && currentProfile?.office_name ? `<p class="text-sm mt-1 font-bold">${currentProfile.office_name}</p>` : ''}</div><span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">${office?'مكتب عقاري':'عميل'}</span></div><div class="flex flex-wrap gap-2">${office?`<a href="#/add" class="btn-primary">إضافة إعلان</a><a href="#/dashboard" class="btn-ghost">لوحة المكتب</a>`:`<a href="#/favorites" class="btn-primary">المفضلة</a><a href="#/properties" class="btn-ghost">تصفح العقارات</a>`}<button onclick="doLogout()" class="btn-ghost">تسجيل الخروج</button></div></div></div>`;
   }
-  return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-    <h1 class="font-display text-2xl font-bold mb-1">حسابي</h1>
-    <p class="text-sm mb-8" style="color:var(--text-muted)">سجّل الدخول أو أنشئ حساباً لنشر إعلاناتك وإدارتها.</p>
-    <div class="grid sm:grid-cols-2 gap-5">
-      <div class="surface rounded-2xl p-6">
-        <h3 class="font-bold mb-3">تسجيل الدخول</h3>
-        <form onsubmit="return doLogin(event)" class="space-y-3">
-          <input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني">
-          <input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور">
-          <button class="btn-primary w-full">دخول</button>
-        </form>
-      </div>
-      <div class="surface rounded-2xl p-6">
-        <h3 class="font-bold mb-3">حساب جديد</h3>
-        <form onsubmit="return doSignUp(event)" class="space-y-3">
-          <input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني">
-          <input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور (6 أحرف على الأقل)">
-          <button class="btn-primary w-full">إنشاء حساب</button>
-        </form>
-      </div>
-    </div>
-  </div>`;
+  return `<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8"><h1 class="font-display text-2xl font-bold mb-1">حسابي</h1><p class="text-sm mb-8" style="color:var(--text-muted)">سجّل الدخول، أو أنشئ حساب عميل للتصفح والمفضلة، أو حساب مكتب لنشر وإدارة الإعلانات.</p><div class="grid lg:grid-cols-2 gap-5"><div class="surface rounded-2xl p-6"><h3 class="font-bold mb-3">تسجيل الدخول</h3><form onsubmit="return doLogin(event)" class="space-y-3"><input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني"><input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور"><button class="btn-primary w-full">دخول</button></form></div><div class="surface rounded-2xl p-6"><h3 class="font-bold mb-2">إنشاء حساب جديد</h3><p class="text-xs mb-4" style="color:var(--text-muted)">اختر نوع الحساب الصحيح. حساب العميل لا يمكنه نشر الإعلانات.</p><form onsubmit="return doSignUp(event)" class="space-y-3"><div><label class="field-label">نوع الحساب</label><select required name="account_type" class="field-input" onchange="toggleOfficeNameField(this.value)"><option value="client">عميل</option><option value="office">صاحب مكتب عقاري</option></select></div><div id="officeNameField" class="hidden"><label class="field-label">اسم المكتب</label><input type="text" name="office_name" class="field-input" placeholder="مثال: مكتب الواجهة العقارية"></div><input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني"><input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور (6 أحرف على الأقل)"><button class="btn-primary w-full">إنشاء الحساب</button></form></div></div></div>`;
+}
+function toggleOfficeNameField(type){
+  const wrap = document.getElementById('officeNameField');
+  if(!wrap) return;
+  wrap.classList.toggle('hidden', type!=='office');
+  const input = wrap.querySelector('input[name="office_name"]');
+  if(input) input.required = type==='office';
 }
 async function doLogin(e){
   e.preventDefault();
@@ -1740,9 +1757,10 @@ async function doLogin(e){
   const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
   if(error){ toast('تعذر تسجيل الدخول: '+error.message); return false; }
   currentUser = data.user;
+  await loadCurrentProfile();
   toast('تم تسجيل الدخول');
   await loadRemoteListings();
-  navigate('/dashboard',{});
+  navigate(isOfficeAccount()?'/dashboard':'/account',{});
   return false;
 }
 async function doSignUp(e){
@@ -1750,12 +1768,23 @@ async function doSignUp(e){
   const fd = new FormData(e.target);
   const email = String(fd.get('email')||'').trim();
   const password = String(fd.get('password')||'');
-  const {data,error} = await supabaseClient.auth.signUp({email,password});
+  const accountType = String(fd.get('account_type')||'client');
+  const officeName = accountType==='office' ? String(fd.get('office_name')||'').trim() : '';
+  if(accountType==='office' && !officeName){
+    toast('اكتب اسم المكتب');
+    return false;
+  }
+  const {data,error} = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options:{data:{account_type:accountType, office_name:officeName}}
+  });
   if(error){ toast('تعذر إنشاء الحساب: '+error.message); return false; }
   currentUser = data.session?.user || data.user || null;
   if(data.session){
+    await loadCurrentProfile();
     toast('تم إنشاء الحساب وتسجيل الدخول');
-    navigate('/add',{});
+    navigate(isOfficeAccount()?'/dashboard':'/account',{});
   }else{
     toast('تم إنشاء الحساب. تحقق من بريدك إذا طُلب تأكيده.');
   }
@@ -1764,6 +1793,7 @@ async function doSignUp(e){
 async function doLogout(){
   await supabaseClient.auth.signOut();
   currentUser = null;
+  currentProfile = null;
   toast('تم تسجيل الخروج');
   navigate('/',{});
 }
