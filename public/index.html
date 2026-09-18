@@ -946,7 +946,7 @@ function viewPropertyDetails(id){
           <h3 class="font-bold text-lg mb-3">موقع العقار</h3>
           ${p.latitude && p.longitude
             ? `<div id="propertyDetailsMap" data-lat="${p.latitude}" data-lng="${p.longitude}" class="rounded-2xl overflow-hidden border" style="height:300px; border-color:var(--border)"></div>
-               <a href="https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=17/${p.latitude}/${p.longitude}" target="_blank" rel="noopener" class="inline-block text-xs font-bold mt-2" style="color:var(--accent)">فتح الموقع في خريطة أكبر</a>`
+               <a href="https://www.google.com/maps/search/?api=1&query=${p.latitude},${p.longitude}" target="_blank" rel="noopener" class="btn-primary inline-flex items-center justify-center text-sm mt-3">فتح في Google Maps</a>`
             : `<div class="surface rounded-2xl p-6 text-center text-sm" style="color:var(--text-muted)">لم يحدد المعلن موقعاً دقيقاً لهذا العقار.</div>`}
         </div>
 
