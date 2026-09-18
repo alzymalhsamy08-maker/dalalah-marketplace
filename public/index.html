@@ -838,7 +838,7 @@ function initPropertyDetailsMap(){
   L.marker([lat,lng]).addTo(propertyDetailsMap);
   setTimeout(()=>propertyDetailsMap?.invalidateSize(),100);
 }
-function showMapPreview'(id){
+function showMapPreview(id){
   const p = properties().find(x=>x.id===id);
   if(!p) return;
   const el = document.getElementById('mapPreview');
