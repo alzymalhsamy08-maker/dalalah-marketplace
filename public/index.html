@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 tailwind.config = {
   darkMode: 'media',
@@ -352,6 +354,8 @@ function dbListingToUi(r){
     city:r.city || '-',
     office:null,
     createdAt:r.created_at || null,
+    latitude:r.latitude===null || r.latitude===undefined ? null : Number(r.latitude),
+    longitude:r.longitude===null || r.longitude===undefined ? null : Number(r.longitude),
     ref:(r.kind==='vehicle'?'DLC-':'DL-') + String(r.id).slice(0,8).toUpperCase(),
     desc:r.description || 'لا يوجد وصف إضافي.',
     featured:false,
@@ -779,23 +783,62 @@ function emptyState(title, sub){
   </div>`;
 }
 function mapView(list){
-  const pts = list.slice(0,24).map((p,i)=>({p, x: 8+ (i*37)%84, y: 10+ (i*53)%78}));
-  return `<div class="surface rounded-2xl overflow-hidden relative" style="height:520px; background:var(--surface-2);">
-    <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
-      ${Array.from({length:9}).map((_,i)=>`<line x1="${i*12.5}" y1="0" x2="${i*12.5}" y2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
-      ${Array.from({length:9}).map((_,i)=>`<line y1="${i*12.5}" x1="0" y2="${i*12.5}" x2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
-    </svg>
-    ${pts.map(({p,x,y})=>`
-      <button onclick="showMapPreview('${p.id}')" class="absolute -translate-x-1/2 -translate-y-full tap" style="right:${x}%; top:${y}%;" title="${p.title}">
-        <span class="flex items-center justify-center w-9 h-9 rounded-full rounded-bl-none rotate-45 shadow-lg" style="background:var(--accent);">
-          <span class="-rotate-45 text-[10px] font-bold" style="color:var(--accent-contrast)">${(p.price/1000).toFixed(0)}k</span>
-        </span>
-      </button>`).join('')}
-    <div id="mapPreview" class="hidden absolute bottom-4 right-4 left-4 sm:right-4 sm:left-auto sm:w-80 surface rounded-xl card-shadow overflow-hidden"></div>
-    <p class="absolute top-3 right-3 text-[11px] px-2 py-1 rounded-full" style="background:var(--surface); color:var(--text-muted); border:1px solid var(--border)">عرض تقريبي لمواقع العقارات</p>
-  </div>`;
+  mapBrowseItems = list.filter(p=>p.latitude && p.longitude);
+  if(!mapBrowseItems.length){
+    return `<div class="surface rounded-2xl py-16 px-6 text-center">
+      <p class="font-bold">لا توجد مواقع محددة على الخريطة بعد</p>
+      <p class="text-sm mt-1" style="color:var(--text-muted)">الإعلانات الجديدة التي يحدد أصحابها الموقع ستظهر هنا.</p>
+    </div>`;
+  }
+  return `<div id="propertiesBrowseMap" class="rounded-2xl overflow-hidden border" style="height:520px; border-color:var(--border)"></div>`;
 }
-function showMapPreview(id){
+function initPropertiesBrowseMap(){
+  const el = document.getElementById('propertiesBrowseMap');
+  if(!el || typeof L==='undefined' || !mapBrowseItems.length) return;
+  if(propertiesBrowseMap){
+    try{ propertiesBrowseMap.remove(); }catch(e){}
+    propertiesBrowseMap = null;
+  }
+  propertiesBrowseMap = L.map(el);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'&copy; OpenStreetMap contributors'
+  }).addTo(propertiesBrowseMap);
+
+  const bounds = [];
+  mapBrowseItems.forEach(p=>{
+    const lat = Number(p.latitude), lng = Number(p.longitude);
+    if(!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    bounds.push([lat,lng]);
+    const marker = L.marker([lat,lng]).addTo(propertiesBrowseMap);
+    marker.bindPopup(`<div dir="rtl" style="font-family:Tajawal,sans-serif;min-width:160px">
+      <b>${String(p.title||'عقار')}</b><br>
+      <span>${fmtPrice(p.price)}</span><br>
+      <a href="#/property/${p.id}" style="color:#556B2F;font-weight:700">فتح الإعلان</a>
+    </div>`);
+  });
+  if(bounds.length===1) propertiesBrowseMap.setView(bounds[0],15);
+  else propertiesBrowseMap.fitBounds(bounds,{padding:[35,35]});
+  setTimeout(()=>propertiesBrowseMap?.invalidateSize(),100);
+}
+function initPropertyDetailsMap(){
+  const el = document.getElementById('propertyDetailsMap');
+  if(!el || typeof L==='undefined') return;
+  const lat = Number(el.dataset.lat), lng = Number(el.dataset.lng);
+  if(!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+  if(propertyDetailsMap){
+    try{ propertyDetailsMap.remove(); }catch(e){}
+    propertyDetailsMap = null;
+  }
+  propertyDetailsMap = L.map(el).setView([lat,lng],16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'&copy; OpenStreetMap contributors'
+  }).addTo(propertyDetailsMap);
+  L.marker([lat,lng]).addTo(propertyDetailsMap);
+  setTimeout(()=>propertyDetailsMap?.invalidateSize(),100);
+}
+function showMapPreview'(id){
   const p = properties().find(x=>x.id===id);
   if(!p) return;
   const el = document.getElementById('mapPreview');
@@ -901,16 +944,10 @@ function viewPropertyDetails(id){
 
         <div class="mt-8">
           <h3 class="font-bold text-lg mb-3">موقع العقار</h3>
-          <div class="surface rounded-2xl overflow-hidden" style="height:220px; position:relative; background:var(--surface-2)">
-            <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
-              ${Array.from({length:7}).map((_,i)=>`<line x1="${i*16}" y1="0" x2="${i*16}" y2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
-              ${Array.from({length:7}).map((_,i)=>`<line y1="${i*16}" x1="0" y2="${i*16}" x2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
-            </svg>
-            <div class="absolute inset-0 flex items-center justify-center flex-col gap-1">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7Z"/></svg>
-              <p class="text-xs font-bold" style="color:var(--text-muted)">${p.city} - ${p.hood}</p>
-            </div>
-          </div>
+          ${p.latitude && p.longitude
+            ? `<div id="propertyDetailsMap" data-lat="${p.latitude}" data-lng="${p.longitude}" class="rounded-2xl overflow-hidden border" style="height:300px; border-color:var(--border)"></div>
+               <a href="https://www.openstreetmap.org/?mlat=${p.latitude}&mlon=${p.longitude}#map=17/${p.latitude}/${p.longitude}" target="_blank" rel="noopener" class="inline-block text-xs font-bold mt-2" style="color:var(--accent)">فتح الموقع في خريطة أكبر</a>`
+            : `<div class="surface rounded-2xl p-6 text-center text-sm" style="color:var(--text-muted)">لم يحدد المعلن موقعاً دقيقاً لهذا العقار.</div>`}
         </div>
 
         <p class="text-xs mt-6" style="color:var(--text-muted)">رقم مرجع الإعلان: ${p.ref}</p>
@@ -1153,7 +1190,7 @@ function viewVehicleDetails(id){
 
 /* ===================== ADD LISTING WIZARD ===================== */
 let wizard = null;
-function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال', mediaFiles:[], mediaPreviews:[]}; }
+function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال', latitude:null, longitude:null, mediaFiles:[], mediaPreviews:[]}; }
 function viewAddListing(){
   if(!wizard) wizard = freshWizard();
   const w = wizard;
@@ -1297,27 +1334,90 @@ function removeMedia(i){
   wizard.mediaPreviews.splice(i,1);
   renderWizard();
 }
+const CITY_CENTERS = {
+  "الرياض":[24.7136,46.6753],
+  "جدة":[21.5433,39.1728],
+  "مكة المكرمة":[21.3891,39.8579],
+  "الدمام":[26.4207,50.0888],
+  "المدينة المنورة":[24.5247,39.5692],
+  "وادي الدواسر":[20.4897,44.8425]
+};
+let listingLocationMap = null;
+let listingLocationMarker = null;
+let propertyDetailsMap = null;
+let propertiesBrowseMap = null;
+let mapBrowseItems = [];
+
 function locationStepBody(){
   const w = wizard;
-  return `<p class="text-sm mb-3" style="color:var(--text-muted)">حدد موقع العقار على الخريطة (تجريبي) بالنقر لتحريك الدبوس.</p>
-  <div onclick="placePin(event)" class="surface rounded-2xl relative cursor-crosshair" style="height:240px; background:var(--surface-2); overflow:hidden;">
-    <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
-      ${Array.from({length:7}).map((_,i)=>`<line x1="${i*16}" y1="0" x2="${i*16}" y2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
-      ${Array.from({length:7}).map((_,i)=>`<line y1="${i*16}" x1="0" y2="${i*16}" x2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
-    </svg>
-    <div id="pin" style="position:absolute; right:${w.pinX||48}%; top:${w.pinY||45}%; transform:translate(50%,-100%);">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7Z"/></svg>
-    </div>
-  </div>
-  <p class="text-xs mt-2" style="color:var(--text-muted)">تم حفظ الإحداثيات التقريبية بنجاح.</p>`;
+  return `<p class="text-sm mb-3" style="color:var(--text-muted)">حدد موقع العقار الحقيقي بالنقر على الخريطة، أو استخدم موقع جهازك.</p>
+  <div id="listingLocationMap" class="rounded-2xl overflow-hidden border" style="height:320px; border-color:var(--border)"></div>
+  <div class="flex flex-wrap items-center gap-2 mt-3">
+    <button type="button" onclick="useMyCurrentLocation()" class="btn-ghost text-sm">استخدام موقعي الحالي</button>
+    <span id="locationStatus" class="text-xs" style="color:var(--text-muted)">${w.latitude && w.longitude ? 'تم تحديد الموقع وحفظ الإحداثيات.' : 'اضغط على الخريطة لتحديد موقع العقار.'}</span>
+  </div>`;
 }
-function placePin(e){
-  const rect = e.currentTarget.getBoundingClientRect();
-  const x = 100 - ((e.clientX-rect.left)/rect.width*100);
-  const y = (e.clientY-rect.top)/rect.height*100;
-  wizard.pinX = x.toFixed(1); wizard.pinY = y.toFixed(1);
-  const pin = document.getElementById('pin');
-  if(pin){ pin.style.right = x+'%'; pin.style.top = y+'%'; }
+
+function initListingLocationMap(){
+  const el = document.getElementById('listingLocationMap');
+  if(!el || typeof L==='undefined') return;
+  if(listingLocationMap){
+    try{ listingLocationMap.remove(); }catch(e){}
+    listingLocationMap = null;
+    listingLocationMarker = null;
+  }
+  const center = (wizard.latitude && wizard.longitude)
+    ? [Number(wizard.latitude), Number(wizard.longitude)]
+    : (CITY_CENTERS[wizard.city] || [23.8859,45.0792]);
+  listingLocationMap = L.map(el).setView(center, wizard.latitude ? 16 : 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'&copy; OpenStreetMap contributors'
+  }).addTo(listingLocationMap);
+
+  if(wizard.latitude && wizard.longitude){
+    listingLocationMarker = L.marker([Number(wizard.latitude), Number(wizard.longitude)]).addTo(listingLocationMap);
+  }
+
+  listingLocationMap.on('click', function(e){
+    setWizardMapLocation(e.latlng.lat, e.latlng.lng);
+  });
+
+  setTimeout(()=>listingLocationMap?.invalidateSize(),100);
+}
+
+function setWizardMapLocation(lat,lng){
+  wizard.latitude = Number(lat.toFixed(7));
+  wizard.longitude = Number(lng.toFixed(7));
+  if(listingLocationMarker){
+    listingLocationMarker.setLatLng([wizard.latitude,wizard.longitude]);
+  }else if(listingLocationMap){
+    listingLocationMarker = L.marker([wizard.latitude,wizard.longitude]).addTo(listingLocationMap);
+  }
+  const status = document.getElementById('locationStatus');
+  if(status) status.textContent = 'تم تحديد الموقع وحفظ الإحداثيات.';
+}
+
+function useMyCurrentLocation(){
+  if(!navigator.geolocation){
+    toast('المتصفح لا يدعم تحديد الموقع');
+    return;
+  }
+  const status = document.getElementById('locationStatus');
+  if(status) status.textContent = 'جاري تحديد موقعك...';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      setWizardMapLocation(lat,lng);
+      listingLocationMap?.setView([lat,lng],16);
+    },
+    ()=>{
+      if(status) status.textContent = 'تعذر الوصول للموقع. يمكنك تحديده يدوياً على الخريطة.';
+      toast('اسمح للموقع بالوصول إلى موقعك أو حدده يدوياً');
+    },
+    {enableHighAccuracy:true, timeout:10000}
+  );
 }
 function contactStepBody(){
   const w = wizard;
@@ -1361,7 +1461,11 @@ function wInput(k,v){ wizard[k]=v; }
 function renderWizard(){ const el = document.getElementById('wizardBody'); if(el) el.innerHTML = wizardStep(); }
 function wizNext(){ wizard.step++; renderAddPage(); }
 function wizPrev(){ wizard.step--; renderAddPage(); }
-function renderAddPage(){ document.getElementById('app').innerHTML = `<div class="animate-in">${viewAddListing()}</div>`; window.scrollTo({top:0}); }
+function renderAddPage(){
+  document.getElementById('app').innerHTML = `<div class="animate-in">${viewAddListing()}</div>`;
+  window.scrollTo({top:0});
+  if(wizard?.kind==='property' && wizard?.step===6) setTimeout(initListingLocationMap,0);
+}
 function saveDraft(){ toast('تم حفظ الإعلان كمسودة'); }
 async function uploadListingMedia(files){
   if(!currentUser || !files?.length) return [];
@@ -1418,6 +1522,8 @@ async function publishListing(){
       phone:w.phone||null,
       whatsapp:w.whatsapp||w.phone||null,
       preferred_contact:w.prefer||null,
+      latitude:w.kind==='property' && w.latitude ? Number(w.latitude) : null,
+      longitude:w.kind==='property' && w.longitude ? Number(w.longitude) : null,
       media_urls:mediaUrls
     };
     const {data,error} = await supabaseClient.from('listings').insert(payload).select().single();
@@ -1749,8 +1855,10 @@ function copyShareLink(){
   navigator.clipboard?.writeText(url).then(()=>toast('تم نسخ الرابط')).catch(()=>toast('تعذر نسخ الرابط'));
 }
 
-function afterRender(path){
-  // no-op hook reserved for future per-route side effects
+function afterRender(path, params){
+  if(path.startsWith('/property/')) setTimeout(initPropertyDetailsMap,0);
+  if(path==='/properties' && (params?.get('view')||'list')==='map') setTimeout(initPropertiesBrowseMap,0);
+  if(path==='/add' && wizard?.kind==='property' && wizard?.step===6) setTimeout(initListingLocationMap,0);
 }
 </script>
 </body>
