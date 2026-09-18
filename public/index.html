@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>دِلالة | DALALAH — سوق العقارات والسيارات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'media',
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['"El Messiri"', '"Tajawal"', 'sans-serif'],
+        body: ['"Tajawal"', 'sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+:root{
+  --bg:#F7F3EA; --surface:#FFFFFF; --surface-2:#F0EAD9;
+  --text:#262420; --text-muted:#736C5C; --border:#E4DCC8;
+  --accent:#556B2F; --accent-dark:#3F5122; --accent-contrast:#FBF9F2; --accent-soft:#E7EBD9;
+  --charcoal:#24231F; --charcoal-2:#34322B;
+  --danger:#A63D3D; --gold:#A9843E; --gold-soft:#F3E9D2;
+  --shadow: 0 1px 2px rgba(36,35,31,.04), 0 8px 24px -12px rgba(36,35,31,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1B1A16; --surface:#242219; --surface-2:#2C2A20;
+    --text:#F3EFE3; --text-muted:#A79E88; --border:#3B382C;
+    --accent:#8FAE5D; --accent-dark:#7A9A4C; --accent-contrast:#1B1A16; --accent-soft:#33391F;
+    --charcoal:#100F0C; --charcoal-2:#1D1C16;
+    --danger:#D97B7B; --gold:#D3B577; --gold-soft:#3A331C;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1B1A16; --surface:#242219; --surface-2:#2C2A20;
+  --text:#F3EFE3; --text-muted:#A79E88; --border:#3B382C;
+  --accent:#8FAE5D; --accent-dark:#7A9A4C; --accent-contrast:#1B1A16; --accent-soft:#33391F;
+  --charcoal:#100F0C; --charcoal-2:#1D1C16;
+  --danger:#D97B7B; --gold:#D3B577; --gold-soft:#3A331C;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg); color:var(--text);}
+body{font-family:'Tajawal', sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+.font-display{font-family:'El Messiri','Tajawal',sans-serif;}
+::selection{background:var(--accent-soft); color:var(--accent-dark);}
+a{-webkit-tap-highlight-color:transparent;}
+button{font-family:inherit; cursor:pointer;}
+input,select,textarea{font-family:inherit; background:var(--surface); color:var(--text); border-color:var(--border);}
+input::placeholder,textarea::placeholder{color:var(--text-muted);}
+.surface{background:var(--surface); border:1px solid var(--border);}
+.card-shadow{box-shadow:var(--shadow);}
+.scrollbar-none::-webkit-scrollbar{display:none;}
+.scrollbar-none{scrollbar-width:none;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
+.animate-in{animation:fadeUp .45s ease both;}
+@media (prefers-reduced-motion: reduce){ .animate-in{animation:none;} * {transition:none !important;} }
+.tap{transition:transform .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;}
+.tap:active{transform:scale(.97);}
+.hover-lift{transition:transform .25s ease, box-shadow .25s ease;}
+@media (hover:hover){ .hover-lift:hover{transform:translateY(-3px); box-shadow:0 16px 34px -18px rgba(36,35,31,.35);} }
+.chip{border:1px solid var(--border); color:var(--text-muted); background:var(--surface);}
+.chip[data-active="true"]{background:var(--accent); color:var(--accent-contrast); border-color:var(--accent);}
+.badge-featured{background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold);}
+.skeleton{background:linear-gradient(90deg,var(--surface-2) 25%, var(--border) 37%, var(--surface-2) 63%); background-size:400% 100%; animation:sk 1.4s ease infinite;}
+@keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.overflow-x-scroll-x{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+.grain-house{color:var(--accent);}
+dialog::backdrop{background:rgba(16,15,12,.55);}
+.wizard-step-dot{width:8px;height:8px;border-radius:99px;background:var(--border);}
+.wizard-step-dot[data-active="true"]{background:var(--accent); width:22px;}
+input[type=range]{accent-color:var(--accent);}
+.field-label{font-size:.8rem; color:var(--text-muted); margin-bottom:.35rem; display:block;}
+.field-input{width:100%; border:1px solid var(--border); border-radius:.7rem; padding:.65rem .9rem; font-size:.925rem; outline:none;}
+.field-input:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+.btn-primary{background:var(--accent); color:var(--accent-contrast); border-radius:.8rem; font-weight:700; padding:.75rem 1.4rem; border:1px solid var(--accent);}
+.btn-primary:hover{background:var(--accent-dark); border-color:var(--accent-dark);}
+.btn-ghost{background:transparent; color:var(--text); border:1px solid var(--border); border-radius:.8rem; padding:.75rem 1.4rem; font-weight:600;}
+.btn-ghost:hover{background:var(--surface-2);}
+.btn-charcoal{background:var(--charcoal); color:#F3EFE3; border-radius:.8rem; padding:.75rem 1.4rem; font-weight:700; border:1px solid var(--charcoal);}
+.btn-charcoal:hover{background:var(--charcoal-2);}
+#app{min-height:60vh;}
+.mask-fade-b{-webkit-mask-image:linear-gradient(to bottom, black 70%, transparent 100%); mask-image:linear-gradient(to bottom, black 70%, transparent 100%);}
+</style>
+</head>
+<body class="font-body">
+
+<div class="fixed inset-x-0 top-0 z-40">
+  <header id="siteHeader" class="w-full" style="background:var(--charcoal); color:#F3EFE3;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="#/" class="flex items-center gap-2 shrink-0 tap">
+        <svg width="34" height="34" viewBox="0 0 48 48" fill="none">
+          <path d="M24 4 5 20h5v20h12V28h4v12h12V20h5L24 4Z" fill="#8FAE5D"/>
+          <circle cx="24" cy="17" r="3.4" fill="#100F0C"/>
+        </svg>
+        <span class="font-display font-bold text-lg leading-none">دِلالة<span class="block text-[10px] font-body font-normal tracking-wide text-[#B9B2A0]">DALALAH</span></span>
+      </a>
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+        <a href="#/" class="nav-link px-3 py-2 rounded-lg hover:bg-white/10 tap">الرئيسية</a>
+        <a href="#/properties" class="nav-link px-3 py-2 rounded-lg hover:bg-white/10 tap">العقارات</a>
+        <a href="#/offices" class="nav-link px-3 py-2 rounded-lg hover:bg-white/10 tap">المكاتب العقارية</a>
+        <a href="#/vehicles" class="nav-link px-3 py-2 rounded-lg hover:bg-white/10 tap">السيارات</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="#/add" class="hidden sm:inline-flex btn-primary !py-2 !px-4 text-sm items-center gap-1.5 tap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          أضف عرضك
+        </a>
+        <button onclick="location.hash='#/account'" class="w-9 h-9 rounded-full flex items-center justify-center border border-white/20 hover:bg-white/10 tap" title="تسجيل الدخول">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 4.2-6 7-6s5.5 2 7 6"/></svg>
+        </button>
+        <button onclick="toggleMobileMenu()" class="md:hidden w-9 h-9 flex items-center justify-center" aria-label="القائمة">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden border-t border-white/10 px-4 py-3 flex flex-col gap-1 text-sm">
+      <a href="#/" onclick="toggleMobileMenu()" class="px-3 py-2.5 rounded-lg hover:bg-white/10">الرئيسية</a>
+      <a href="#/properties" onclick="toggleMobileMenu()" class="px-3 py-2.5 rounded-lg hover:bg-white/10">العقارات</a>
+      <a href="#/offices" onclick="toggleMobileMenu()" class="px-3 py-2.5 rounded-lg hover:bg-white/10">المكاتب العقارية</a>
+      <a href="#/vehicles" onclick="toggleMobileMenu()" class="px-3 py-2.5 rounded-lg hover:bg-white/10">السيارات</a>
+      <a href="#/dashboard" onclick="toggleMobileMenu()" class="px-3 py-2.5 rounded-lg hover:bg-white/10">لوحة المكتب</a>
+      <a href="#/admin" onclick="toggleMobileMenu()" class="px-3 py-2.5 rounded-lg hover:bg-white/10">لوحة الإدارة</a>
+    </div>
+  </header>
+</div>
+
+<main id="app" class="pt-16 pb-24 md:pb-0 min-h-screen"></main>
+
+<footer class="border-t" style="background:var(--surface-2); border-color:var(--border);">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 md:grid-cols-5 gap-8">
+    <div class="col-span-2">
+      <div class="flex items-center gap-2 mb-3">
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none"><path d="M24 4 5 20h5v20h12V28h4v12h12V20h5L24 4Z" fill="var(--accent)"/></svg>
+        <span class="font-display font-bold text-lg">دِلالة</span>
+      </div>
+      <p class="text-sm" style="color:var(--text-muted)">دِلالة — مكان واحد لاكتشاف العقار المناسب.</p>
+    </div>
+    <div><h4 class="font-bold mb-3 text-sm">العقارات</h4><ul class="space-y-2 text-sm" style="color:var(--text-muted)">
+      <li><a href="#/properties" class="hover:underline">تصفح العقارات</a></li>
+      <li><a href="#/add" class="hover:underline">أضف عرضك</a></li>
+      <li><a href="#/favorites" class="hover:underline">المفضلة</a></li>
+    </ul></div>
+    <div><h4 class="font-bold mb-3 text-sm">المكاتب العقارية</h4><ul class="space-y-2 text-sm" style="color:var(--text-muted)">
+      <li><a href="#/offices" class="hover:underline">جميع المكاتب</a></li>
+      <li><a href="#/dashboard" class="hover:underline">لوحة تحكم المكتب</a></li>
+    </ul></div>
+    <div><h4 class="font-bold mb-3 text-sm">عن المنصة</h4><ul class="space-y-2 text-sm" style="color:var(--text-muted)">
+      <li><a href="#/vehicles" class="hover:underline">السيارات</a></li>
+      <li><a href="javascript:void(0)" class="hover:underline">تواصل معنا</a></li>
+      <li><a href="javascript:void(0)" class="hover:underline">الشروط والأحكام</a></li>
+      <li><a href="javascript:void(0)" class="hover:underline">سياسة الخصوصية</a></li>
+    </ul></div>
+  </div>
+  <div class="text-center text-xs py-4 border-t" style="color:var(--text-muted); border-color:var(--border)">© 2026 دِلالة. جميع الحقوق محفوظة.</div>
+</footer>
+
+<nav class="fixed bottom-0 inset-x-0 z-40 md:hidden border-t" style="background:var(--surface); border-color:var(--border);">
+  <div class="grid grid-cols-5 items-end text-[11px]">
+    <a href="#/" class="flex flex-col items-center gap-1 py-2.5 bottom-link" data-route="/"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>الرئيسية</a>
+    <a href="#/properties" class="flex flex-col items-center gap-1 py-2.5 bottom-link" data-route="/properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>استكشف</a>
+    <a href="#/add" class="flex flex-col items-center -mt-5">
+      <span class="w-14 h-14 rounded-full flex items-center justify-center shadow-lg" style="background:var(--accent); color:var(--accent-contrast);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      <span class="mt-1">أضف عرض</span>
+    </a>
+    <a href="#/favorites" class="flex flex-col items-center gap-1 py-2.5 bottom-link" data-route="/favorites"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5 5 0 00-7 0L12 6.3l-1.8-1.7a5 5 0 10-7 7.1L12 20l8.8-8.3a5 5 0 000-7Z"/></svg>المفضلة</a>
+    <a href="#/account" class="flex flex-col items-center gap-1 py-2.5 bottom-link" data-route="/account"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 4.2-6 7-6s5.5 2 7 6"/></svg>حسابي</a>
+  </div>
+</nav>
+
+<dialog id="reportDialog" class="rounded-2xl p-0 w-[92%] max-w-md" style="background:var(--surface); color:var(--text); border:1px solid var(--border);">
+  <div class="p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-display font-bold text-lg">الإبلاغ عن الإعلان</h3>
+      <button onclick="reportDialog.close()" class="w-8 h-8 rounded-full hover:bg-black/5 flex items-center justify-center">✕</button>
+    </div>
+    <p class="text-sm mb-3" style="color:var(--text-muted)">اختر سبب الإبلاغ عن هذا الإعلان:</p>
+    <div class="space-y-2 mb-4" id="reportReasons">
+      ${''}
+    </div>
+    <button onclick="submitReport()" class="btn-primary w-full">إرسال البلاغ</button>
+  </div>
+</dialog>
+
+<dialog id="shareDialog" class="rounded-2xl p-0 w-[92%] max-w-md" style="background:var(--surface); color:var(--text); border:1px solid var(--border);">
+  <div class="p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-display font-bold text-lg">مشاركة الإعلان</h3>
+      <button onclick="shareDialog.close()" class="w-8 h-8 rounded-full hover:bg-black/5 flex items-center justify-center">✕</button>
+    </div>
+    <div class="flex flex-col gap-2">
+      <a id="shareWhatsapp" target="_blank" class="btn-ghost flex items-center gap-2 justify-center">مشاركة عبر واتساب</a>
+      <button onclick="copyShareLink()" class="btn-ghost">نسخ الرابط</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="toast" class="fixed bottom-24 md:bottom-8 rounded-full px-5 py-3 text-sm font-bold border-0" style="background:var(--charcoal); color:#fff;"></dialog>
+
+<script>
+/* ===================== DATA ===================== */
+const CITIES = ["الرياض","جدة","مكة المكرمة","الدمام","المدينة المنورة","وادي الدواسر"];
+const NEIGHBORHOODS = {
+  "الرياض": ["الياسمين","النرجس","الملقا","حطين","العليا","الروضة"],
+  "جدة": ["الشاطئ","الروضة","السلامة","الزهراء"],
+  "مكة المكرمة": ["العزيزية","الشوقية"],
+  "الدمام": ["الفيصلية","الشاطئ"],
+  "المدينة المنورة": ["قباء","العوالي"],
+  "وادي الدواسر": ["الديرة","السلي"]
+};
+const TX_TYPES = ["للبيع","للإيجار","للتقبيل"];
+const PROP_TYPES = ["شقة","أرض","محل","مول","مكتب","بيت","فيلا","استراحة","مزرعة","مستودع","عمارة","عقار تجاري"];
+const REPORT_REASONS = ["معلومات غير صحيحة","إعلان مكرر","عقار غير متاح","سعر غير صحيح","محتوى مخالف","احتيال أو اشتباه","سبب آخر"];
+
+const OFFICES = [
+ {id:"rowaa", name:"مكتب الرؤية العقارية", city:"الرياض", address:"طريق الملك فهد، حي العليا", phone:"0112345678", whatsapp:"0501234567", hours:"9:00 ص - 9:00 م", verified:true, grad:"linear-gradient(135deg,#4B5B2E,#8FAE5D)", desc:"مكتب عقاري متخصص في تسويق الفلل والأراضي السكنية في العاصمة الرياض منذ 2015."},
+ {id:"diyar-jd", name:"مكتب الديار الحديثة", city:"جدة", address:"شارع الأمير سلطان، حي الروضة", phone:"0126547890", whatsapp:"0559876543", hours:"10:00 ص - 10:00 م", verified:true, grad:"linear-gradient(135deg,#8A6A2E,#D3B577)", desc:"نساعد عملاءنا في جدة على إيجاد الشقق والمحلات التجارية المناسبة باحترافية."},
+ {id:"waha-dmm", name:"مكتب الواحة العقاري", city:"الدمام", address:"طريق الملك سعود، حي الشاطئ", phone:"0138765432", whatsapp:"0567891234", hours:"9:30 ص - 8:30 م", verified:false, grad:"linear-gradient(135deg,#2E5B6A,#6FA9BE)", desc:"مكتب عقاري في المنطقة الشرقية يغطي الفلل والمكاتب الإدارية والمستودعات."},
+ {id:"najd", name:"مكتب نجد للعقارات", city:"الرياض", address:"طريق الأمير محمد بن سلمان، حي الملقا", phone:"0114567891", whatsapp:"0541122334", hours:"9:00 ص - 11:00 م", verified:true, grad:"linear-gradient(135deg,#6B4B2E,#B08D57)", desc:"خبرة تتجاوز 10 سنوات في تأجير وبيع الشقق والمستودعات داخل الرياض."},
+ {id:"manara", name:"مكتب المنارة العقارية", city:"مكة المكرمة", address:"طريق الحرم، حي العزيزية", phone:"0125557788", whatsapp:"0533344556", hours:"9:00 ص - 9:00 م", verified:true, grad:"linear-gradient(135deg,#5B2E4B,#AE5D8F)", desc:"مكتب موثوق لخدمات بيع وتأجير العقارات السكنية والتجارية في مكة والمدينة."},
+];
+
+const ICONS = {
+ house:'<path d="M4 11.5 12 5l8 6.5"/><path d="M6 10v9h5v-5h2v5h5v-9"/>',
+ building:'<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/>',
+ land:'<path d="M3 18 9 8l4 6 3-4 5 8"/><path d="M3 18h18"/>',
+ warehouse:'<path d="M3 21V9l9-5 9 5v12"/><path d="M3 21h18M9 21v-6h6v6"/>',
+ car:'<path d="M4 16V11l2-5h12l2 5v5"/><path d="M4 16h16"/><circle cx="7.5" cy="16.5" r="1.6"/><circle cx="16.5" cy="16.5" r="1.6"/>'
+};
+function typeIcon(t){
+  if(["فيلا","بيت","استراحة"].includes(t)) return ICONS.house;
+  if(["شقة","عمارة"].includes(t)) return ICONS.building;
+  if(["أرض","مزرعة"].includes(t)) return ICONS.land;
+  if(["مستودع"].includes(t)) return ICONS.warehouse;
+  return ICONS.building;
+}
+const GRADS = [
+ "linear-gradient(135deg,#556B2F,#8FAE5D)","linear-gradient(135deg,#8A6A2E,#D3B577)",
+ "linear-gradient(135deg,#2E5B6A,#6FA9BE)","linear-gradient(135deg,#6B4B2E,#B08D57)",
+ "linear-gradient(135deg,#5B2E4B,#AE5D8F)","linear-gradient(135deg,#3F5122,#7A9A4C)",
+ "linear-gradient(135deg,#4A4238,#8C8168)"
+];
+function placeholderImg(i, type, big){
+  const g = GRADS[i % GRADS.length];
+  const size = big? 'w-full h-full' : 'w-full h-full';
+  return `<div class="${size} flex items-center justify-center relative overflow-hidden" style="background:${g}">
+    <svg width="${big?64:36}" height="${big?64:36}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-opacity="0.85" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${typeIcon(type)}</svg>
+    <div class="absolute inset-0" style="background:linear-gradient(0deg, rgba(0,0,0,.18), transparent 40%)"></div>
+  </div>`;
+}
+
+const BASE_PROPERTIES = [
+ {id:"p1",title:"فيلا فاخرة للبيع في حي الياسمين",tx:"للبيع",type:"فيلا",city:"الرياض",hood:"الياسمين",price:1250000,area:350,rooms:5,baths:4,living:2,age:"جديد",furnished:"غير مفروش",street:20,facing:"شمالية شرقية",office:"rowaa",featured:true,ref:"DL-1001",
+   desc:"فيلا درج داخلي وخارجي بتشطيبات حديثة، تصميم عصري وواجهات حجرية، تتكون من دورين وملحق، موقع مميز قريب من الخدمات والمدارس."},
+ {id:"p2",title:"شقة للإيجار في حي الملقا",tx:"للإيجار",type:"شقة",city:"الرياض",hood:"الملقا",price:45000,area:140,rooms:3,baths:2,living:1,age:"أقل من 5 سنوات",furnished:"مفروش",street:15,facing:"جنوبية",office:"najd",featured:false,ref:"DL-1002",
+   desc:"شقة واسعة بتصميم عائلي، مطبخ راكب، مصعد خاص بالعمارة، موقف سيارة مغطى، قريبة من طريق الملك عبدالله."},
+ {id:"p3",title:"أرض سكنية للبيع في حي حطين",tx:"للبيع",type:"أرض",city:"الرياض",hood:"حطين",price:2100000,area:600,rooms:null,baths:null,living:null,age:null,furnished:null,street:24,facing:"شمالية",office:"rowaa",featured:false,ref:"DL-1003",
+   desc:"أرض سكنية مستوية على شارعين، مخطط معتمد، موقع استراتيجي قريب من المسجد والحديقة العامة."},
+ {id:"p4",title:"شقة للبيع في حي الروضة",tx:"للبيع",type:"شقة",city:"جدة",hood:"الروضة",price:780000,area:165,rooms:3,baths:3,living:1,age:"جديد",furnished:"غير مفروش",street:18,facing:"غربية",office:"diyar-jd",featured:true,ref:"DL-1004",
+   desc:"شقة في عمارة حديثة بمصعدين وحارس أمن، إطلالة جزئية على البحر، تشطيب سوبر لوكس."},
+ {id:"p5",title:"استراحة للإيجار اليومي بجدة",tx:"للإيجار",type:"استراحة",city:"جدة",hood:"السلامة",price:8000,area:800,rooms:4,baths:3,living:1,age:"متوسط",furnished:"مفروش",street:20,facing:"جنوبية غربية",office:"diyar-jd",featured:false,ref:"DL-1005",
+   desc:"استراحة بمسبح خاص وملعب كرة، مناسبة للمناسبات العائلية والتجمعات، تأجير شهري أو مناسبات."},
+ {id:"p6",title:"محل تجاري للإيجار في حي السلامة",tx:"للإيجار",type:"محل",city:"جدة",hood:"السلامة",price:60000,area:90,rooms:null,baths:1,living:null,age:"مستخدم",furnished:"غير مفروش",street:30,facing:"شمالية",office:"diyar-jd",featured:false,ref:"DL-1006",
+   desc:"محل واجهة زجاجية على شارع تجاري حيوي، مناسب لمعارض أو مطاعم، تكييف مركزي."},
+ {id:"p7",title:"فيلا للبيع في حي الفيصلية",tx:"للبيع",type:"فيلا",city:"الدمام",hood:"الفيصلية",price:1450000,area:400,rooms:6,baths:5,living:2,age:"جديد",furnished:"غير مفروش",street:20,facing:"شرقية",office:"waha-dmm",featured:true,ref:"DL-1007",
+   desc:"فيلا مودرن بمسبح ومجلس خارجي، تشطيبات فندقية، سطح مجهز للجلسات."},
+ {id:"p8",title:"مكتب إداري للإيجار في حي الشاطئ",tx:"للإيجار",type:"مكتب",city:"الدمام",hood:"الشاطئ",price:35000,area:120,rooms:null,baths:1,living:null,age:"أقل من 5 سنوات",furnished:"مفروش",street:24,facing:"غربية",office:"waha-dmm",featured:false,ref:"DL-1008",
+   desc:"مكتب في برج إداري مطل على الكورنيش، شامل موقف سيارات واستقبال مشترك."},
+ {id:"p9",title:"بيت شعبي للبيع في حي العزيزية",tx:"للبيع",type:"بيت",city:"مكة المكرمة",hood:"العزيزية",price:950000,area:300,rooms:5,baths:3,living:2,age:"مستخدم",furnished:"غير مفروش",street:15,facing:"جنوبية",office:"manara",featured:false,ref:"DL-1009",
+   desc:"بيت من دورين بموقع قريب من الحرم، يصلح للسكن أو الاستثمار في التأجير للحجاج والمعتمرين."},
+ {id:"p10",title:"عمارة سكنية للبيع في حي الشوقية",tx:"للبيع",type:"عمارة",city:"مكة المكرمة",hood:"الشوقية",price:5200000,area:900,rooms:12,baths:12,living:null,age:"متوسط",furnished:"غير مفروش",street:20,facing:"شمالية",office:"manara",featured:true,ref:"DL-1010",
+   desc:"عمارة استثمارية 12 وحدة سكنية بعائد إيجاري ممتاز، نسبة إشغال كاملة حالياً."},
+ {id:"p11",title:"مزرعة للبيع في وادي الدواسر",tx:"للبيع",type:"مزرعة",city:"وادي الدواسر",hood:"الديرة",price:3000000,area:5000,rooms:2,baths:1,living:1,age:"مستخدم",furnished:"غير مفروش",street:12,facing:"شرقية",office:"rowaa",featured:false,ref:"DL-1011",
+   desc:"مزرعة بها بئر ارتوازي ومزروعات نخيل، سور كامل وغرفة حراسة، مناسبة للاستثمار الزراعي."},
+ {id:"p12",title:"مستودع للإيجار في المنطقة الصناعية",tx:"للإيجار",type:"مستودع",city:"الرياض",hood:"الياسمين",price:50000,area:500,rooms:null,baths:1,living:null,age:"مستخدم",furnished:"غير مفروش",street:30,facing:"شمالية",office:"najd",featured:false,ref:"DL-1012",
+   desc:"مستودع بارتفاع سقف مناسب للرفوف، باب هيدروليكي كبير، قريب من الطريق الدائري."},
+ {id:"p13",title:"شقة للتقبيل في حي النرجس",tx:"للتقبيل",type:"شقة",city:"الرياض",hood:"النرجس",price:600000,area:120,rooms:3,baths:2,living:1,age:"جديد",furnished:"غير مفروش",street:18,facing:"جنوبية شرقية",office:"najd",featured:false,ref:"DL-1013",
+   desc:"شقة بنظام التقبيل بدفعة أولى ميسّرة وأقساط شهرية مريحة، ضمن مجمع سكني مغلق."},
+ {id:"p14",title:"فيلا للإيجار في حي العوالي",tx:"للإيجار",type:"فيلا",city:"المدينة المنورة",hood:"العوالي",price:70000,area:380,rooms:5,baths:4,living:2,age:"أقل من 5 سنوات",furnished:"غير مفروش",street:20,facing:"غربية",office:"manara",featured:false,ref:"DL-1014",
+   desc:"فيلا عائلية بمدخلين منفصلين، قريبة من المسجد النبوي وطريق الحرمين السريع."},
+ {id:"p15",title:"أرض تجارية للبيع على طريق المدينة السريع",tx:"للبيع",type:"عقار تجاري",city:"المدينة المنورة",hood:"قباء",price:1800000,area:750,rooms:null,baths:null,living:null,age:null,furnished:null,street:40,facing:"جنوبية",office:"manara",featured:false,ref:"DL-1015",
+   desc:"أرض تجارية على واجهة مباشرة لطريق حيوي، مناسبة لمحطة وقود أو مجمع تجاري."},
+];
+
+const BASE_VEHICLES = [
+ {id:"v1",brand:"تويوتا",model:"كامري",year:2022,tx:"للبيع",price:95000,mileage:30000,fuel:"بنزين",trans:"أوتوماتيك",city:"الرياض",condition:"مستعمل بحالة ممتازة",office:"rowaa",ref:"DLC-201",
+  desc:"سيارة نظيفة جداً بدون حوادث، صيانة دورية منتظمة في الوكالة، فحص شامل متوفر عند الطلب."},
+ {id:"v2",brand:"لكزس",model:"ES 350",year:2021,tx:"للبيع",price:145000,mileage:40000,fuel:"بنزين",trans:"أوتوماتيك",city:"جدة",condition:"مستعمل بحالة ممتازة",office:"diyar-jd",ref:"DLC-202",
+  desc:"فل كامل، جلد طبيعي، فتحة سقف بانورامية، إطارات جديدة، مالك واحد فقط."},
+ {id:"v3",brand:"هيونداي",model:"النترا",year:2020,tx:"للبيع",price:55000,mileage:60000,fuel:"بنزين",trans:"أوتوماتيك",city:"الدمام",condition:"مستعمل بحالة جيدة",office:"waha-dmm",ref:"DLC-203",
+  desc:"اقتصادية في الاستهلاك، مناسبة للاستخدام اليومي، فحص هيكل سليم بدون صبغ."},
+ {id:"v4",brand:"فورد",model:"F-150",year:2023,tx:"للبيع",price:210000,mileage:15000,fuel:"بنزين",trans:"أوتوماتيك",city:"الرياض",condition:"مستعمل كالجديد",office:"najd",ref:"DLC-204",
+  desc:"دبل كابين، فل كامل، ضمان وكالة ساري، مناسبة للعائلة والاستخدام البري."},
+ {id:"v5",brand:"كيا",model:"سورينتو",year:2019,tx:"للإيجار",price:220,mileage:80000,fuel:"بنزين",trans:"أوتوماتيك",city:"جدة",condition:"مستعمل بحالة جيدة",office:"diyar-jd",ref:"DLC-205",
+  desc:"إيجار يومي بأسعار مناسبة، تأمين شامل متوفر، تسليم واستلام من موقعك."},
+ {id:"v6",brand:"مرسيدس",model:"C200",year:2022,tx:"للبيع",price:175000,mileage:25000,fuel:"بنزين",trans:"أوتوماتيك",city:"مكة المكرمة",condition:"مستعمل بحالة ممتازة",office:"manara",ref:"DLC-206",
+  desc:"تشطيب AMG، فحص كامل سليم، صيانة معتمدة، بيع مباشر من المالك عبر المكتب."},
+];
+
+/* ===================== STATE / STORAGE ===================== */
+const LS = {
+  get(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v===null||v===undefined? d : v;}catch(e){return d;} },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+let favorites = new Set(LS.get('dalalah_favorites', []));
+let userProperties = LS.get('dalalah_user_properties', []);
+let userVehicles = LS.get('dalalah_user_vehicles', []);
+let reports = LS.get('dalalah_reports', []);
+let statusOverrides = LS.get('dalalah_status', {}); // id -> 'paused'|'sold'|'rented'|'hidden'
+let officeVerifyOverrides = LS.get('dalalah_office_verify', {});
+let savedSearches = LS.get('dalalah_saved_searches', []);
+
+function properties(){ return [...BASE_PROPERTIES, ...userProperties].map(p=>({...p, status: statusOverrides[p.id]||'active'})); }
+function vehicles(){ return [...BASE_VEHICLES, ...userVehicles].map(v=>({...v, status: statusOverrides[v.id]||'active'})); }
+function officeById(id){ const o = OFFICES.find(o=>o.id===id); if(!o) return null; return {...o, verified: officeVerifyOverrides[id]!==undefined? officeVerifyOverrides[id] : o.verified}; }
+function saveFav(){ LS.set('dalalah_favorites', [...favorites]); }
+function fmtPrice(n){ return n.toLocaleString('en-US') + ' ر.س'; }
+function fmtNum(n){ return n.toLocaleString('en-US'); }
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  if(!t.open) t.show();
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>t.close(), 2200);
+}
+function toggleMobileMenu(){ document.getElementById('mobileMenu').classList.toggle('hidden'); }
+function toggleFavorite(id, e){
+  if(e) e.stopPropagation();
+  if(favorites.has(id)) favorites.delete(id); else favorites.add(id);
+  saveFav();
+  render();
+}
+function heartSvg(active){
+  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="${active?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5 5 0 00-7 0L12 6.3l-1.8-1.7a5 5 0 10-7 7.1L12 20l8.8-8.3a5 5 0 000-7Z"/></svg>`;
+}
+
+/* ===================== ROUTER ===================== */
+function parseHash(){
+  let h = location.hash.replace(/^#/,'') || '/';
+  let [path, qs] = h.split('?');
+  path = path.replace(/\/+$/,'') || '/';
+  const params = new URLSearchParams(qs||'');
+  return {path, params};
+}
+function navigate(path, params){
+  const qs = params ? '?'+new URLSearchParams(params).toString() : '';
+  location.hash = '#'+path+qs;
+}
+window.addEventListener('hashchange', render);
+window.addEventListener('DOMContentLoaded', ()=>{ applyOSTheme(); render(); });
+function applyOSTheme(){ /* relies on prefers-color-scheme via CSS vars */ }
+
+function render(){
+  const {path, params} = parseHash();
+  document.getElementById('mobileMenu').classList.add('hidden');
+  document.querySelectorAll('.bottom-link').forEach(l=>{
+    l.style.color = ('/'+ (path.split('/')[1]||'')) === l.dataset.route || (path===l.dataset.route) ? 'var(--accent)' : 'var(--text-muted)';
+  });
+  const app = document.getElementById('app');
+  window.scrollTo({top:0, behavior:'instant' in window? 'instant':'auto'});
+  let html = '';
+  const seg = path.split('/').filter(Boolean);
+  try{
+    if(path==='/' ) html = viewHome();
+    else if(seg[0]==='properties') html = viewProperties(params);
+    else if(seg[0]==='property' && seg[1]) html = viewPropertyDetails(seg[1]);
+    else if(seg[0]==='offices') html = viewOffices(params);
+    else if(seg[0]==='office' && seg[1]) html = viewOfficePage(seg[1], params);
+    else if(seg[0]==='vehicles') html = viewVehicles(params);
+    else if(seg[0]==='vehicle' && seg[1]) html = viewVehicleDetails(seg[1]);
+    else if(seg[0]==='add') html = viewAddListing();
+    else if(seg[0]==='dashboard') html = viewDashboard(params);
+    else if(seg[0]==='favorites') html = viewFavorites();
+    else if(seg[0]==='account') html = viewAccount();
+    else if(seg[0]==='admin') html = viewAdmin(params);
+    else html = view404();
+  }catch(err){ console.error(err); html = view404(); }
+  app.innerHTML = `<div class="animate-in">${html}</div>`;
+  afterRender(path, params);
+}
+
+function view404(){
+  return `<div class="max-w-lg mx-auto text-center py-24 px-6">
+    <p class="font-display text-2xl font-bold mb-2">لم يتم العثور على الصفحة</p>
+    <p style="color:var(--text-muted)" class="mb-6">الرابط الذي حاولت فتحه غير متاح.</p>
+    <a href="#/" class="btn-primary inline-block">العودة للرئيسية</a>
+  </div>`;
+}
+
+/* ===================== SHARED COMPONENTS ===================== */
+function sectionHeader(title, subtitle, linkText, linkHref){
+  return `<div class="flex items-end justify-between mb-6">
+    <div>
+      <h2 class="font-display text-2xl sm:text-3xl font-bold">${title}</h2>
+      ${subtitle? `<p class="text-sm mt-1" style="color:var(--text-muted)">${subtitle}</p>`:''}
+    </div>
+    ${linkText? `<a href="${linkHref}" class="text-sm font-bold shrink-0" style="color:var(--accent)">${linkText} ←</a>`:''}
+  </div>`;
+}
+
+function propertyCard(p, idx){
+  const office = officeById(p.office);
+  const fav = favorites.has(p.id);
+  const specs = [];
+  if(p.rooms) specs.push(p.rooms+' غرف');
+  if(p.baths) specs.push(p.baths+' دورات مياه');
+  return `<a href="#/property/${p.id}" class="group block surface rounded-2xl overflow-hidden card-shadow hover-lift tap">
+    <div class="relative aspect-[4/3]">
+      ${placeholderImg(idx, p.type)}
+      ${p.featured? `<span class="absolute top-3 right-3 badge-featured text-[11px] font-bold px-2.5 py-1 rounded-full">مميز</span>`:''}
+      ${p.status && p.status!=='active'? `<span class="absolute top-3 right-3 text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:var(--charcoal); color:#fff;">${statusLabel(p.status)}</span>`:''}
+      <button onclick="toggleFavorite('${p.id}', event)" class="absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center tap" style="background:rgba(255,255,255,.9); color:${fav?'var(--danger)':'#24231F'}">
+        ${heartSvg(fav)}
+      </button>
+      <span class="absolute bottom-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:rgba(16,15,12,.55); color:#fff;">${p.tx}</span>
+    </div>
+    <div class="p-4">
+      <h3 class="font-bold text-[15px] leading-snug line-clamp-1">${p.title}</h3>
+      <p class="font-display font-bold text-lg mt-1.5" style="color:var(--accent)">${fmtPrice(p.price)}${p.tx==='للإيجار'?'<span class="text-xs font-body font-normal" style="color:var(--text-muted)"> / سنوياً</span>':''}</p>
+      <p class="text-xs mt-1" style="color:var(--text-muted)">${p.city} - ${p.hood}</p>
+      <p class="text-xs mt-1.5" style="color:var(--text-muted)">${p.area} م²${specs.length? ' • '+specs.join(' • '):''}</p>
+      <div class="flex items-center justify-between mt-3 pt-3 border-t" style="border-color:var(--border)">
+        <span class="text-xs font-bold truncate" style="color:var(--text-muted)">${office? office.name:''}</span>
+        <span class="text-[11px]" style="color:var(--text-muted)">منذ ${p.ref? (parseInt(p.ref.split('-')[1])%7)+1 : 2} أيام</span>
+      </div>
+    </div>
+  </a>`;
+}
+function statusLabel(s){ return {paused:'متوقف', sold:'مباع', rented:'مؤجر', hidden:'مخفي'}[s]||s; }
+
+function vehicleCard(v, idx){
+  const fav = favorites.has(v.id);
+  return `<a href="#/vehicle/${v.id}" class="group block surface rounded-2xl overflow-hidden card-shadow hover-lift tap">
+    <div class="relative aspect-[4/3]">
+      ${placeholderImg(idx, 'سيارة')}
+      <button onclick="toggleFavorite('${v.id}', event)" class="absolute top-3 left-3 w-9 h-9 rounded-full flex items-center justify-center tap" style="background:rgba(255,255,255,.9); color:${fav?'var(--danger)':'#24231F'}">${heartSvg(fav)}</button>
+      <span class="absolute bottom-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:rgba(16,15,12,.55); color:#fff;">${v.tx}</span>
+    </div>
+    <div class="p-4">
+      <h3 class="font-bold text-[15px]">${v.brand} ${v.model} <span style="color:var(--text-muted)" class="font-normal">${v.year}</span></h3>
+      <p class="font-display font-bold text-lg mt-1.5" style="color:var(--accent)">${fmtPrice(v.price)}${v.tx==='للإيجار'?'<span class="text-xs font-body font-normal" style="color:var(--text-muted)"> / اليوم</span>':''}</p>
+      <p class="text-xs mt-1" style="color:var(--text-muted)">${v.city}</p>
+      <p class="text-xs mt-1.5" style="color:var(--text-muted)">${fmtNum(v.mileage)} كم • ${v.fuel} • ${v.trans}</p>
+    </div>
+  </a>`;
+}
+function typeIconSvg(t, cls){ return `<svg class="${cls||''}" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${typeIcon(t)}</svg>`; }
+
+/* ===================== HOME ===================== */
+function viewHome(){
+  const feat = properties().filter(p=>p.featured && p.status==='active').slice(0,4);
+  const latest = [...properties()].filter(p=>p.status==='active').reverse().slice(0,4);
+  const catList = PROP_TYPES;
+  return `
+  <section class="relative overflow-hidden" style="background:var(--charcoal)">
+    <div class="absolute inset-0 opacity-30" style="background:radial-gradient(circle at 30% 20%, var(--accent), transparent 45%), radial-gradient(circle at 80% 80%, #6FA9BE, transparent 40%)"></div>
+    <div class="relative max-w-4xl mx-auto px-6 pt-16 pb-24 text-center" style="color:#F3EFE3">
+      <h1 class="font-display text-4xl sm:text-5xl font-bold leading-tight">عقارك أقرب مما تتخيل</h1>
+      <p class="mt-4 text-base sm:text-lg" style="color:#C9C3B2">اكتشف عروض العقارات من مكاتب متعددة في مكان واحد.</p>
+      <form onsubmit="return submitHeroSearch(event)" class="mt-8 surface rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row gap-2 shadow-2xl">
+        <select id="heroCity" class="field-input sm:w-40 !border-0" style="background:transparent">
+          <option value="">كل المدن</option>
+          ${CITIES.map(c=>`<option value="${c}">${c}</option>`).join('')}
+        </select>
+        <div class="hidden sm:block w-px my-1" style="background:var(--border)"></div>
+        <input id="heroQuery" class="field-input flex-1 !border-0" placeholder="ابحث عن عقار، حي، مدينة أو مكتب عقاري...">
+        <button type="submit" class="btn-primary shrink-0 flex items-center justify-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          بحث
+        </button>
+      </form>
+      <a href="#/add" class="inline-flex items-center gap-2 mt-5 text-sm font-bold" style="color:#F3EFE3">
+        <span class="underline underline-offset-4">أضف عرضك</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 -mt-10 relative z-10">
+    <div class="overflow-x-scroll-x scrollbar-none flex gap-3 pb-2">
+      ${catList.map(t=>`<a href="#/properties?type=${encodeURIComponent(t)}" class="shrink-0 surface card-shadow rounded-2xl px-5 py-4 flex flex-col items-center gap-2 hover-lift tap w-24">
+        <span style="color:var(--accent)">${typeIconSvg(t)}</span>
+        <span class="text-xs font-bold text-center">${t}</span>
+      </a>`).join('')}
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+    ${sectionHeader('عروض مميزة', null, 'عرض الكل', '#/properties')}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+      ${feat.map((p,i)=>propertyCard(p,i)).join('')}
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+    ${sectionHeader('أحدث العروض', null, 'عرض الكل', '#/properties?sort=latest')}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+      ${latest.map((p,i)=>propertyCard(p,i+2)).join('')}
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+    <div class="rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6" style="background:var(--accent-soft)">
+      <div>
+        <h3 class="font-display text-2xl font-bold" style="color:var(--accent-dark)">عروض بالقرب منك</h3>
+        <p class="text-sm mt-1" style="color:var(--text)">اختر مدينتك لتصفح العقارات القريبة منك — بدون الحاجة لتفعيل الموقع.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        ${CITIES.slice(0,4).map(c=>`<a href="#/properties?city=${encodeURIComponent(c)}" class="chip rounded-full px-4 py-2 text-sm font-bold tap" style="background:var(--surface)">${c}</a>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+    ${sectionHeader('السيارات', 'تصفح أحدث عروض السيارات للبيع والإيجار', 'عرض الكل', '#/vehicles')}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+      ${vehicles().slice(0,4).map((v,i)=>vehicleCard(v,i)).join('')}
+    </div>
+  </section>
+  `;
+}
+function submitHeroSearch(e){
+  e.preventDefault();
+  const city = document.getElementById('heroCity').value;
+  const q = document.getElementById('heroQuery').value;
+  const params = {};
+  if(city) params.city = city;
+  if(q) params.q = q;
+  navigate('/properties', params);
+  return false;
+}
+
+/* ===================== PROPERTIES LIST ===================== */
+function viewProperties(params){
+  const city = params.get('city')||'';
+  const hood = params.get('hood')||'';
+  const tx = params.get('tx')||'';
+  const type = params.get('type')||'';
+  const priceMin = params.get('priceMin')||'';
+  const priceMax = params.get('priceMax')||'';
+  const areaMin = params.get('areaMin')||'';
+  const areaMax = params.get('areaMax')||'';
+  const rooms = params.get('rooms')||'';
+  const furnished = params.get('furnished')||'';
+  const cond = params.get('cond')||'';
+  const office = params.get('office')||'';
+  const sort = params.get('sort')||'latest';
+  const q = (params.get('q')||'').trim();
+  const mode = params.get('view')||'list';
+
+  let list = properties().filter(p=>p.status==='active');
+  if(city) list = list.filter(p=>p.city===city);
+  if(hood) list = list.filter(p=>p.hood===hood);
+  if(tx) list = list.filter(p=>p.tx===tx);
+  if(type) list = list.filter(p=>p.type===type);
+  if(priceMin) list = list.filter(p=>p.price>=+priceMin);
+  if(priceMax) list = list.filter(p=>p.price<=+priceMax);
+  if(areaMin) list = list.filter(p=>p.area>=+areaMin);
+  if(areaMax) list = list.filter(p=>p.area<=+areaMax);
+  if(rooms) list = list.filter(p=>p.rooms && p.rooms>=+rooms);
+  if(furnished) list = list.filter(p=>p.furnished===furnished);
+  if(cond) list = list.filter(p=>p.age===cond);
+  if(office) list = list.filter(p=>p.office===office);
+  if(q) list = list.filter(p=> (p.title+p.city+p.hood+(officeById(p.office)?.name||'')).includes(q));
+
+  if(sort==='price_asc') list = [...list].sort((a,b)=>a.price-b.price);
+  else if(sort==='price_desc') list = [...list].sort((a,b)=>b.price-a.price);
+  else if(sort==='area_desc') list = [...list].sort((a,b)=>b.area-a.area);
+  else list = [...list].reverse();
+
+  const hoods = city? (NEIGHBORHOODS[city]||[]) : [];
+
+  return `
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold mb-1">العقارات</h1>
+    <p class="text-sm mb-6" style="color:var(--text-muted)">${list.length} نتيجة</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+      <aside class="surface rounded-2xl p-5 h-fit lg:sticky lg:top-24">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold">الفلاتر</h3>
+          <a href="#/properties" class="text-xs font-bold" style="color:var(--accent)">مسح الكل</a>
+        </div>
+        <form id="filterForm" onsubmit="return applyFilters(event)" class="space-y-4">
+          <div>
+            <label class="field-label">نوع العرض</label>
+            <div class="flex flex-wrap gap-2">
+              ${TX_TYPES.map(t=>`<button type="button" data-role="tx" data-active="${tx===t}" onclick="chipToggle(this,'tx')" class="chip rounded-full px-3 py-1.5 text-xs font-bold tap">${t}</button>`).join('')}
+            </div>
+          </div>
+          <div>
+            <label class="field-label">المدينة</label>
+            <select name="city" id="fCity" onchange="cityChanged()" class="field-input">
+              <option value="">كل المدن</option>
+              ${CITIES.map(c=>`<option value="${c}" ${city===c?'selected':''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div id="hoodWrap" style="${hoods.length? '':'display:none'}">
+            <label class="field-label">الحي</label>
+            <select name="hood" id="fHood" class="field-input">
+              <option value="">كل الأحياء</option>
+              ${hoods.map(h=>`<option value="${h}" ${hood===h?'selected':''}>${h}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="field-label">نوع العقار</label>
+            <select name="type" class="field-input">
+              <option value="">كل الأنواع</option>
+              ${PROP_TYPES.map(t=>`<option value="${t}" ${type===t?'selected':''}>${t}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="field-label">السعر (ر.س)</label>
+            <div class="flex gap-2">
+              <input name="priceMin" value="${priceMin}" placeholder="من" type="number" class="field-input">
+              <input name="priceMax" value="${priceMax}" placeholder="إلى" type="number" class="field-input">
+            </div>
+          </div>
+          <div>
+            <label class="field-label">المساحة (م²)</label>
+            <div class="flex gap-2">
+              <input name="areaMin" value="${areaMin}" placeholder="من" type="number" class="field-input">
+              <input name="areaMax" value="${areaMax}" placeholder="إلى" type="number" class="field-input">
+            </div>
+          </div>
+          <div>
+            <label class="field-label">عدد الغرف (كحد أدنى)</label>
+            <select name="rooms" class="field-input">
+              <option value="">أي عدد</option>
+              ${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${rooms==n?'selected':''}>${n}+</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="field-label">التأثيث</label>
+            <select name="furnished" class="field-input">
+              <option value="">الكل</option>
+              <option value="مفروش" ${furnished==='مفروش'?'selected':''}>مفروش</option>
+              <option value="غير مفروش" ${furnished==='غير مفروش'?'selected':''}>غير مفروش</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">الحالة</label>
+            <select name="cond" class="field-input">
+              <option value="">الكل</option>
+              <option value="جديد" ${cond==='جديد'?'selected':''}>جديد</option>
+              <option value="مستخدم" ${cond==='مستخدم'?'selected':''}>مستخدم</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">المكتب العقاري</label>
+            <select name="office" class="field-input">
+              <option value="">كل المكاتب</option>
+              ${OFFICES.map(o=>`<option value="${o.id}" ${office===o.id?'selected':''}>${o.name}</option>`).join('')}
+            </select>
+          </div>
+          <input type="hidden" name="tx" id="fTx" value="${tx}">
+          <button type="submit" class="btn-primary w-full">عرض النتائج</button>
+        </form>
+      </aside>
+
+      <div>
+        <div class="flex items-center justify-between mb-5 gap-3">
+          <div class="flex gap-2 rounded-full p-1 surface">
+            <button onclick="setView('list')" class="px-4 py-1.5 rounded-full text-xs font-bold tap" style="${mode==='list'?'background:var(--accent);color:var(--accent-contrast)':''}">القائمة</button>
+            <button onclick="setView('map')" class="px-4 py-1.5 rounded-full text-xs font-bold tap" style="${mode==='map'?'background:var(--accent);color:var(--accent-contrast)':''}">الخريطة</button>
+          </div>
+          <select onchange="setSort(this.value)" class="field-input !w-auto text-sm">
+            <option value="latest" ${sort==='latest'?'selected':''}>الأحدث</option>
+            <option value="price_asc" ${sort==='price_asc'?'selected':''}>الأقل سعراً</option>
+            <option value="price_desc" ${sort==='price_desc'?'selected':''}>الأعلى سعراً</option>
+            <option value="area_desc" ${sort==='area_desc'?'selected':''}>الأكبر مساحة</option>
+          </select>
+        </div>
+
+        ${mode==='map'? mapView(list) : (list.length? `<div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">${list.map((p,i)=>propertyCard(p,i)).join('')}</div>` : emptyState('لا توجد نتائج مطابقة', 'جرّب تعديل الفلاتر أو مسحها بالكامل للعثور على عقارات أخرى.'))}
+      </div>
+    </div>
+  </div>`;
+}
+function emptyState(title, sub){
+  return `<div class="surface rounded-2xl py-16 px-6 text-center">
+    <svg class="mx-auto mb-3" style="color:var(--text-muted)" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <p class="font-bold">${title}</p>
+    <p class="text-sm mt-1" style="color:var(--text-muted)">${sub}</p>
+    <a href="#/properties" class="btn-ghost inline-block mt-4">مسح الفلاتر</a>
+  </div>`;
+}
+function mapView(list){
+  const pts = list.slice(0,24).map((p,i)=>({p, x: 8+ (i*37)%84, y: 10+ (i*53)%78}));
+  return `<div class="surface rounded-2xl overflow-hidden relative" style="height:520px; background:var(--surface-2);">
+    <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
+      ${Array.from({length:9}).map((_,i)=>`<line x1="${i*12.5}" y1="0" x2="${i*12.5}" y2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
+      ${Array.from({length:9}).map((_,i)=>`<line y1="${i*12.5}" x1="0" y2="${i*12.5}" x2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
+    </svg>
+    ${pts.map(({p,x,y})=>`
+      <button onclick="showMapPreview('${p.id}')" class="absolute -translate-x-1/2 -translate-y-full tap" style="right:${x}%; top:${y}%;" title="${p.title}">
+        <span class="flex items-center justify-center w-9 h-9 rounded-full rounded-bl-none rotate-45 shadow-lg" style="background:var(--accent);">
+          <span class="-rotate-45 text-[10px] font-bold" style="color:var(--accent-contrast)">${(p.price/1000).toFixed(0)}k</span>
+        </span>
+      </button>`).join('')}
+    <div id="mapPreview" class="hidden absolute bottom-4 right-4 left-4 sm:right-4 sm:left-auto sm:w-80 surface rounded-xl card-shadow overflow-hidden"></div>
+    <p class="absolute top-3 right-3 text-[11px] px-2 py-1 rounded-full" style="background:var(--surface); color:var(--text-muted); border:1px solid var(--border)">عرض تقريبي لمواقع العقارات</p>
+  </div>`;
+}
+function showMapPreview(id){
+  const p = properties().find(x=>x.id===id);
+  if(!p) return;
+  const el = document.getElementById('mapPreview');
+  el.classList.remove('hidden');
+  el.innerHTML = `<a href="#/property/${p.id}" class="flex gap-3 p-3">
+    <div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">${placeholderImg(1,p.type)}</div>
+    <div class="min-w-0">
+      <p class="font-bold text-sm truncate">${p.title}</p>
+      <p class="text-sm font-display font-bold" style="color:var(--accent)">${fmtPrice(p.price)}</p>
+      <p class="text-xs" style="color:var(--text-muted)">${p.hood}</p>
+    </div>
+  </a>`;
+}
+function chipToggle(btn, group){
+  const active = btn.dataset.active==='true';
+  document.querySelectorAll(`[data-role="${group}"]`).forEach(b=>b.dataset.active='false');
+  btn.dataset.active = active? 'false':'true';
+  document.getElementById('f'+group.charAt(0).toUpperCase()+group.slice(1)).value = active? '' : btn.textContent.trim();
+}
+function cityChanged(){
+  const city = document.getElementById('fCity').value;
+  const hoods = NEIGHBORHOODS[city]||[];
+  const wrap = document.getElementById('hoodWrap');
+  if(hoods.length){ wrap.style.display='block'; document.getElementById('fHood').innerHTML = `<option value="">كل الأحياء</option>` + hoods.map(h=>`<option value="${h}">${h}</option>`).join(''); }
+  else wrap.style.display='none';
+}
+function applyFilters(e){
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const obj = {};
+  for(const [k,v] of fd.entries()) if(v) obj[k]=v;
+  navigate('/properties', obj);
+  return false;
+}
+function setSort(v){ const {params} = parseHash(); const obj=Object.fromEntries(params); obj.sort=v; navigate('/properties', obj); }
+function setView(v){ const {params} = parseHash(); const obj=Object.fromEntries(params); obj.view=v; navigate('/properties', obj); }
+
+/* ===================== PROPERTY DETAILS ===================== */
+function viewPropertyDetails(id){
+  const p = properties().find(x=>x.id===id);
+  if(!p) return view404();
+  const office = officeById(p.office);
+  const similar = properties().filter(x=>x.id!==p.id && x.status==='active' && (x.city===p.city || x.type===p.type)).slice(0,4);
+  const specRows = [
+    ['المساحة', p.area+' م²'],
+    p.rooms? ['غرف النوم', p.rooms] : null,
+    p.baths? ['دورات المياه', p.baths] : null,
+    p.living? ['الصالات', p.living] : null,
+    p.age? ['عمر العقار', p.age] : null,
+    p.furnished? ['التأثيث', p.furnished] : null,
+    p.street? ['عرض الشارع', p.street+' م'] : null,
+    p.facing? ['الواجهة', p.facing] : null,
+  ].filter(Boolean);
+
+  return `
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+    <div class="text-xs mb-4 flex items-center gap-1.5" style="color:var(--text-muted)">
+      <a href="#/properties" class="hover:underline">العقارات</a><span>/</span><a href="#/properties?city=${encodeURIComponent(p.city)}" class="hover:underline">${p.city}</a><span>/</span><span>${p.title}</span>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-2 rounded-2xl overflow-hidden mb-6" style="height: 420px;">
+      <button onclick="openGallery('${p.id}')" class="md:col-span-2 md:row-span-2 relative">${placeholderImg(0,p.type,true)}
+        <span class="absolute bottom-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(16,15,12,.6); color:#fff;">عرض المعرض بالكامل</span>
+      </button>
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(1,p.type,true)}</button>
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(2,p.type,true)}</button>
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(3,p.type,true)}
+        <span class="absolute inset-0 flex items-center justify-center text-white font-bold text-sm" style="background:rgba(16,15,12,.45)">فيديو + صور إضافية</span>
+      </button>
+      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${placeholderImg(4,p.type,true)}</button>
+    </div>
+
+    <div class="grid lg:grid-cols-[1fr_360px] gap-8">
+      <div>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">${p.tx}</span>
+            <h1 class="font-display text-2xl sm:text-3xl font-bold mt-3">${p.title}</h1>
+            <p class="text-sm mt-1" style="color:var(--text-muted)">${p.city} - ${p.hood}</p>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button onclick="toggleFavorite('${p.id}')" class="w-10 h-10 rounded-full border flex items-center justify-center tap" style="border-color:var(--border); color:${favorites.has(p.id)?'var(--danger)':'var(--text)'}">${heartSvg(favorites.has(p.id))}</button>
+            <button onclick="openShare('${p.id}','property')" class="w-10 h-10 rounded-full border flex items-center justify-center tap" style="border-color:var(--border)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.7l7.6-4.4M8.2 13.3l7.6 4.4"/></svg></button>
+          </div>
+        </div>
+        <p class="font-display text-3xl font-bold mt-4" style="color:var(--accent)">${fmtPrice(p.price)}${p.tx==='للإيجار'?' / سنوياً':''}</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+          ${specRows.map(([k,v])=>`<div class="surface rounded-xl p-3 text-center"><p class="text-[11px]" style="color:var(--text-muted)">${k}</p><p class="font-bold text-sm mt-1">${v}</p></div>`).join('')}
+        </div>
+
+        <div class="mt-8">
+          <h3 class="font-bold text-lg mb-2">وصف العقار</h3>
+          <p class="text-sm leading-7" style="color:var(--text-muted)">${p.desc}</p>
+        </div>
+
+        <div class="mt-8">
+          <h3 class="font-bold text-lg mb-3">مميزات العقار</h3>
+          <div class="flex flex-wrap gap-2">
+            ${["موقف سيارات","تكييف مركزي","أمن وحراسة","قريب من الخدمات","مصعد"].map(f=>`<span class="chip rounded-full px-3 py-1.5 text-xs">${f}</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <h3 class="font-bold text-lg mb-3">موقع العقار</h3>
+          <div class="surface rounded-2xl overflow-hidden" style="height:220px; position:relative; background:var(--surface-2)">
+            <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
+              ${Array.from({length:7}).map((_,i)=>`<line x1="${i*16}" y1="0" x2="${i*16}" y2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
+              ${Array.from({length:7}).map((_,i)=>`<line y1="${i*16}" x1="0" y2="${i*16}" x2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center flex-col gap-1">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7Z"/></svg>
+              <p class="text-xs font-bold" style="color:var(--text-muted)">${p.city} - ${p.hood}</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-xs mt-6" style="color:var(--text-muted)">رقم مرجع الإعلان: ${p.ref}</p>
+        <button onclick="openReport('${p.id}')" class="text-xs font-bold mt-2 underline" style="color:var(--danger)">الإبلاغ عن الإعلان</button>
+      </div>
+
+      <aside class="space-y-4 h-fit lg:sticky lg:top-24">
+        <div class="surface rounded-2xl p-5">
+          <h3 class="font-bold mb-3">تواصل مع المعلن</h3>
+          <a href="#/office/${office?.id}" class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl shrink-0" style="background:${office?.grad}"></div>
+            <div class="min-w-0">
+              <p class="font-bold text-sm truncate">${office?.name||''}</p>
+              <p class="text-xs" style="color:var(--text-muted)">${office?.city||''}${office?.verified? ' • موثّق':''}</p>
+            </div>
+          </a>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <a href="tel:${office?.phone}" class="btn-charcoal text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.7a2 2 0 01-.5 2.1L8 9.7a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.8.5 2.7.6a2 2 0 011.7 2Z"/></svg>اتصال</a>
+            <a href="https://wa.me/966${(office?.whatsapp||'').replace(/^0/,'')}" target="_blank" class="btn-primary text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2Zm5.6 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.1.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 2.4 1.3 1.1 2.3 1.5 2.6 1.6.2.1.4.1.5-.1l.6-.8c.2-.3.4-.2.6-.1l1.8.9c.2.1.4.2.4.3.1.2.1.9-.1 1.3Z"/></svg>واتساب</a>
+          </div>
+          <button onclick="openInquiry('${p.id}')" class="btn-ghost w-full text-sm">مراسلة</button>
+          <a href="#/office/${office?.id}" class="block text-center text-xs font-bold mt-3" style="color:var(--accent)">عرض جميع عقارات المكتب</a>
+        </div>
+        <div class="rounded-2xl p-4 text-xs leading-6" style="background:var(--gold-soft); color:var(--gold);">
+          تحقق من بيانات العقار والمعلن قبل إجراء أي دفعة أو اتفاق.
+        </div>
+      </aside>
+    </div>
+
+    ${similar.length? `<div class="mt-14">${sectionHeader('عقارات مشابهة')}<div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">${similar.map((s,i)=>propertyCard(s,i)).join('')}</div></div>`:''}
+  </div>
+  <dialog id="galleryDialog" class="rounded-2xl p-0 w-[94%] max-w-3xl" style="background:var(--surface); border:1px solid var(--border);">
+    <div class="p-3 flex justify-between items-center border-b" style="border-color:var(--border)">
+      <p class="font-bold text-sm px-2">معرض الصور</p>
+      <button onclick="galleryDialog.close()" class="w-8 h-8 rounded-full hover:bg-black/5">✕</button>
+    </div>
+    <div class="grid grid-cols-2 gap-2 p-3">
+      ${[0,1,2,3,4].map(i=>`<div class="aspect-[4/3] rounded-xl overflow-hidden">${placeholderImg(i,p.type,true)}</div>`).join('')}
+    </div>
+  </dialog>
+  <dialog id="inquiryDialog" class="rounded-2xl p-0 w-[92%] max-w-md" style="background:var(--surface); border:1px solid var(--border);">
+    <div class="p-5">
+      <div class="flex items-center justify-between mb-3"><h3 class="font-display font-bold text-lg">مراسلة المعلن</h3><button onclick="inquiryDialog.close()" class="w-8 h-8 rounded-full hover:bg-black/5">✕</button></div>
+      <form onsubmit="return sendInquiry(event)" class="space-y-3">
+        <div><label class="field-label">الاسم</label><input required class="field-input" placeholder="اسمك"></div>
+        <div><label class="field-label">رقم الجوال</label><input required class="field-input" placeholder="05xxxxxxxx"></div>
+        <div><label class="field-label">الرسالة</label><textarea required class="field-input" rows="3" placeholder="أنا مهتم بهذا العقار، هل هو متاح؟"></textarea></div>
+        <button class="btn-primary w-full">إرسال</button>
+      </form>
+    </div>
+  </dialog>
+  `;
+}
+function openGallery(){ galleryDialog.showModal(); }
+function openInquiry(){ inquiryDialog.showModal(); }
+function sendInquiry(e){ e.preventDefault(); inquiryDialog.close(); toast('تم إرسال رسالتك إلى المعلن'); return false; }
+
+/* ===================== OFFICES ===================== */
+function viewOffices(params){
+  const q = (params.get('q')||'').trim();
+  let list = OFFICES.map(o=>officeById(o.id));
+  if(q) list = list.filter(o=>o.name.includes(q) || o.city.includes(q));
+  return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold mb-1">المكاتب العقارية</h1>
+    <p class="text-sm mb-6" style="color:var(--text-muted)">تصفح المكاتب العقارية الموثوقة على دِلالة</p>
+    <form onsubmit="return searchOffices(event)" class="flex gap-2 mb-8 max-w-md">
+      <input name="q" value="${q}" class="field-input" placeholder="ابحث عن مكتب عقاري أو مدينة...">
+      <button class="btn-primary shrink-0">بحث</button>
+    </form>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      ${list.map(o=>officeCard(o)).join('') || emptyState('لا توجد مكاتب مطابقة','جرّب كلمة بحث أخرى.')}
+    </div>
+  </div>`;
+}
+function searchOffices(e){ e.preventDefault(); const q = new FormData(e.target).get('q'); navigate('/offices', q? {q}:{}); return false; }
+function officeCard(o){
+  const count = properties().filter(p=>p.office===o.id && p.status==='active').length + vehicles().filter(v=>v.office===o.id && v.status==='active').length;
+  return `<a href="#/office/${o.id}" class="surface rounded-2xl overflow-hidden card-shadow hover-lift tap block">
+    <div class="h-24" style="background:${o.grad}"></div>
+    <div class="p-5 -mt-8">
+      <div class="w-16 h-16 rounded-2xl border-4 flex items-center justify-center font-display font-bold text-lg" style="background:var(--surface); border-color:var(--surface); box-shadow:var(--shadow)">${o.name.replace('مكتب ','').charAt(0)}</div>
+      <div class="flex items-center gap-1.5 mt-3">
+        <p class="font-bold">${o.name}</p>
+        ${o.verified? `<svg width="15" height="15" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2 15 5 19 5 19 9 22 12 19 15 19 19 15 19 12 22 9 19 5 19 5 15 2 12 5 9 5 5 9 5Z"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`:''}
+      </div>
+      <p class="text-xs mt-1" style="color:var(--text-muted)">${o.city}</p>
+      <p class="text-xs mt-3" style="color:var(--text-muted)">${count} إعلان نشط</p>
+    </div>
+  </a>`;
+}
+
+function viewOfficePage(id, params){
+  const o = officeById(id);
+  if(!o) return view404();
+  const tx = params.get('tx')||'';
+  const type = params.get('type')||'';
+  let list = properties().filter(p=>p.office===id && p.status==='active');
+  const vlist = vehicles().filter(v=>v.office===id && v.status==='active');
+  if(tx) list = list.filter(p=>p.tx===tx);
+  if(type) list = list.filter(p=>p.type===type);
+  return `<div>
+    <div class="h-40 sm:h-52" style="background:${o.grad}"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-14 mb-6">
+        <div class="w-24 h-24 rounded-2xl border-4 flex items-center justify-center font-display font-bold text-3xl shrink-0" style="background:var(--surface); border-color:var(--bg); box-shadow:var(--shadow)">${o.name.replace('مكتب ','').charAt(0)}</div>
+        <div class="flex-1 pb-1">
+          <div class="flex items-center gap-2">
+            <h1 class="font-display text-2xl font-bold">${o.name}</h1>
+            ${o.verified? `<span class="text-[11px] font-bold px-2 py-1 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">موثّق</span>`:''}
+          </div>
+          <p class="text-sm mt-1" style="color:var(--text-muted)">${o.address}</p>
+        </div>
+        <div class="flex gap-2 pb-1">
+          <a href="tel:${o.phone}" class="btn-charcoal text-sm">اتصال</a>
+          <a href="https://wa.me/966${o.whatsapp.replace(/^0/,'')}" target="_blank" class="btn-primary text-sm">واتساب</a>
+          <a href="#/properties?office=${o.id}" class="btn-ghost text-sm hidden sm:inline-block">عرض الموقع</a>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-4 gap-3 mb-8">
+        <div class="surface rounded-xl p-4 text-center"><p class="text-xs" style="color:var(--text-muted)">إعلانات نشطة</p><p class="font-display font-bold text-xl mt-1">${list.length+vlist.length}</p></div>
+        <div class="surface rounded-xl p-4 text-center"><p class="text-xs" style="color:var(--text-muted)">ساعات العمل</p><p class="font-bold text-sm mt-1.5">${o.hours}</p></div>
+        <div class="surface rounded-xl p-4 text-center"><p class="text-xs" style="color:var(--text-muted)">المدينة</p><p class="font-bold text-sm mt-1.5">${o.city}</p></div>
+        <div class="surface rounded-xl p-4 text-center"><p class="text-xs" style="color:var(--text-muted)">الحالة</p><p class="font-bold text-sm mt-1.5">${o.verified?'مكتب موثّق':'قيد التوثيق'}</p></div>
+      </div>
+
+      <p class="text-sm leading-7 mb-8 max-w-2xl" style="color:var(--text-muted)">${o.desc}</p>
+
+      <div class="flex flex-wrap gap-2 mb-6">
+        ${TX_TYPES.map(t=>`<a href="#/office/${o.id}?tx=${encodeURIComponent(t)}" class="chip rounded-full px-3 py-1.5 text-xs font-bold" data-active="${tx===t}">${t}</a>`).join('')}
+        <a href="#/office/${o.id}" class="chip rounded-full px-3 py-1.5 text-xs font-bold" data-active="${!tx}">الكل</a>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 pb-16">
+        ${list.map((p,i)=>propertyCard(p,i)).join('') || ''}
+        ${vlist.map((v,i)=>vehicleCard(v,i)).join('')}
+      </div>
+      ${(!list.length && !vlist.length)? emptyState('لا توجد إعلانات حالياً', 'لم يقم هذا المكتب بنشر أي إعلانات بعد.'):''}
+    </div>
+  </div>`;
+}
+
+/* ===================== VEHICLES ===================== */
+function viewVehicles(params){
+  const city = params.get('city')||'';
+  const tx = params.get('tx')||'';
+  const brand = params.get('brand')||'';
+  const sort = params.get('sort')||'latest';
+  let list = vehicles().filter(v=>v.status==='active');
+  if(city) list = list.filter(v=>v.city===city);
+  if(tx) list = list.filter(v=>v.tx===tx);
+  if(brand) list = list.filter(v=>v.brand===brand);
+  if(sort==='price_asc') list=[...list].sort((a,b)=>a.price-b.price);
+  else if(sort==='price_desc') list=[...list].sort((a,b)=>b.price-a.price);
+  else list=[...list].reverse();
+  const brands = [...new Set(vehicles().map(v=>v.brand))];
+  return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <h1 class="font-display text-2xl sm:text-3xl font-bold mb-1">السيارات</h1>
+    <p class="text-sm mb-6" style="color:var(--text-muted)">${list.length} نتيجة</p>
+    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
+      <aside class="surface rounded-2xl p-5 h-fit">
+        <form onsubmit="return applyVehicleFilters(event)" class="space-y-4">
+          <div>
+            <label class="field-label">نوع العرض</label>
+            <select name="tx" class="field-input"><option value="">الكل</option><option ${tx==='للبيع'?'selected':''}>للبيع</option><option ${tx==='للإيجار'?'selected':''}>للإيجار</option></select>
+          </div>
+          <div>
+            <label class="field-label">الشركة</label>
+            <select name="brand" class="field-input"><option value="">كل الشركات</option>${brands.map(b=>`<option ${brand===b?'selected':''}>${b}</option>`).join('')}</select>
+          </div>
+          <div>
+            <label class="field-label">المدينة</label>
+            <select name="city" class="field-input"><option value="">كل المدن</option>${CITIES.map(c=>`<option ${city===c?'selected':''}>${c}</option>`).join('')}</select>
+          </div>
+          <button class="btn-primary w-full">عرض النتائج</button>
+        </form>
+      </aside>
+      <div>
+        <div class="flex justify-end mb-4">
+          <select onchange="setVehicleSort(this.value)" class="field-input !w-auto text-sm">
+            <option value="latest" ${sort==='latest'?'selected':''}>الأحدث</option>
+            <option value="price_asc" ${sort==='price_asc'?'selected':''}>الأقل سعراً</option>
+            <option value="price_desc" ${sort==='price_desc'?'selected':''}>الأعلى سعراً</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
+          ${list.map((v,i)=>vehicleCard(v,i)).join('') || ''}
+        </div>
+        ${!list.length? emptyState('لا توجد سيارات مطابقة','جرّب تعديل الفلاتر.'):''}
+      </div>
+    </div>
+  </div>`;
+}
+function applyVehicleFilters(e){ e.preventDefault(); const fd=new FormData(e.target); const obj={}; for(const [k,v] of fd.entries()) if(v) obj[k]=v; navigate('/vehicles', obj); return false; }
+function setVehicleSort(v){ const {params}=parseHash(); const obj=Object.fromEntries(params); obj.sort=v; navigate('/vehicles', obj); }
+
+function viewVehicleDetails(id){
+  const v = vehicles().find(x=>x.id===id);
+  if(!v) return view404();
+  const office = officeById(v.office);
+  const specRows = [['سنة الصنع',v.year],['الممشى',fmtNum(v.mileage)+' كم'],['نوع الوقود',v.fuel],['ناقل الحركة',v.trans],['الحالة',v.condition]];
+  return `<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+    <div class="grid md:grid-cols-3 gap-2 rounded-2xl overflow-hidden mb-6" style="height:360px">
+      <div class="md:col-span-2">${placeholderImg(0,'سيارة',true)}</div>
+      <div class="grid grid-rows-2 gap-2 hidden md:grid">
+        <div>${placeholderImg(1,'سيارة',true)}</div>
+        <div>${placeholderImg(2,'سيارة',true)}</div>
+      </div>
+    </div>
+    <div class="grid lg:grid-cols-[1fr_360px] gap-8">
+      <div>
+        <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">${v.tx}</span>
+        <h1 class="font-display text-2xl sm:text-3xl font-bold mt-3">${v.brand} ${v.model} ${v.year}</h1>
+        <p class="text-sm mt-1" style="color:var(--text-muted)">${v.city}</p>
+        <p class="font-display text-3xl font-bold mt-4" style="color:var(--accent)">${fmtPrice(v.price)}${v.tx==='للإيجار'?' / اليوم':''}</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
+          ${specRows.map(([k,val])=>`<div class="surface rounded-xl p-3 text-center"><p class="text-[11px]" style="color:var(--text-muted)">${k}</p><p class="font-bold text-sm mt-1">${val}</p></div>`).join('')}
+        </div>
+        <div class="mt-8"><h3 class="font-bold text-lg mb-2">الوصف</h3><p class="text-sm leading-7" style="color:var(--text-muted)">${v.desc}</p></div>
+        <p class="text-xs mt-6" style="color:var(--text-muted)">رقم مرجع الإعلان: ${v.ref}</p>
+        <button onclick="openReport('${v.id}')" class="text-xs font-bold mt-2 underline" style="color:var(--danger)">الإبلاغ عن الإعلان</button>
+      </div>
+      <aside class="space-y-4 h-fit">
+        <div class="surface rounded-2xl p-5">
+          <h3 class="font-bold mb-3">تواصل مع البائع</h3>
+          <a href="#/office/${office?.id}" class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl shrink-0" style="background:${office?.grad}"></div>
+            <p class="font-bold text-sm">${office?.name||''}</p>
+          </a>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <a href="tel:${office?.phone}" class="btn-charcoal text-sm text-center">اتصال</a>
+            <a href="https://wa.me/966${(office?.whatsapp||'').replace(/^0/,'')}" target="_blank" class="btn-primary text-sm text-center">واتساب</a>
+          </div>
+          <button onclick="toggleFavorite('${v.id}')" class="btn-ghost w-full text-sm">${favorites.has(v.id)?'إزالة من المفضلة':'إضافة للمفضلة'}</button>
+        </div>
+      </aside>
+    </div>
+  </div>`;
+}
+
+/* ===================== ADD LISTING WIZARD ===================== */
+let wizard = null;
+function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال'}; }
+function viewAddListing(){
+  if(!wizard) wizard = freshWizard();
+  const w = wizard;
+  const totalSteps = w.kind==='property'? 8 : 6;
+  return `<div class="max-w-2xl mx-auto px-4 sm:px-6 py-8 pb-24">
+    <h1 class="font-display text-2xl font-bold mb-1">أضف عرضك</h1>
+    <p class="text-sm mb-6" style="color:var(--text-muted)">أكمل الخطوات التالية لنشر إعلانك على دِلالة</p>
+    <div class="flex items-center gap-1.5 mb-8">
+      ${Array.from({length:totalSteps}).map((_,i)=>`<span class="wizard-step-dot rounded-full transition-all" data-active="${i+1<=w.step}"></span>`).join('')}
+    </div>
+    <div class="surface rounded-2xl p-5 sm:p-7" id="wizardBody">
+      ${wizardStep()}
+    </div>
+  </div>`;
+}
+function wizardStep(){
+  const w = wizard;
+  if(w.step===1){
+    return `<h2 class="font-bold text-lg mb-4">النوع الرئيسي للإعلان</h2>
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <button onclick="wSet('kind','property')" class="p-4 rounded-xl border text-center tap" style="border-color:${w.kind==='property'?'var(--accent)':'var(--border)'}; background:${w.kind==='property'?'var(--accent-soft)':'transparent'}">
+        ${typeIconSvg('فيلا','mx-auto mb-2')}<p class="font-bold text-sm">عقار</p>
+      </button>
+      <button onclick="wSet('kind','vehicle')" class="p-4 rounded-xl border text-center tap" style="border-color:${w.kind==='vehicle'?'var(--accent)':'var(--border)'}; background:${w.kind==='vehicle'?'var(--accent-soft)':'transparent'}">
+        ${typeIconSvg('سيارة','mx-auto mb-2')}<p class="font-bold text-sm">سيارة</p>
+      </button>
+    </div>
+    <h3 class="field-label">نوع العرض</h3>
+    <div class="flex flex-wrap gap-2 mb-6">
+      ${TX_TYPES.filter(t=> w.kind==='vehicle'? t!=='للتقبيل': true).map(t=>`<button onclick="wSet('tx','${t}')" class="chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${w.tx===t}">${t}</button>`).join('')}
+    </div>
+    ${wizardNav(false, !!w.tx)}`;
+  }
+  if(w.step===2){
+    if(w.kind==='property'){
+      return `<h2 class="font-bold text-lg mb-4">نوع العقار</h2>
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-6">
+        ${PROP_TYPES.map(t=>`<button onclick="wSet('ptype','${t}')" class="p-3 rounded-xl border text-center tap" style="border-color:${w.ptype===t?'var(--accent)':'var(--border)'}; background:${w.ptype===t?'var(--accent-soft)':'transparent'}">
+          ${typeIconSvg(t,'mx-auto mb-1')}<p class="text-xs font-bold">${t}</p></button>`).join('')}
+      </div>
+      ${wizardNav(true, !!w.ptype)}`;
+    } else {
+      return `<h2 class="font-bold text-lg mb-4">بيانات السيارة الأساسية</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="field-label">الشركة المصنعة</label><input class="field-input" value="${w.brand}" oninput="wSet('brand',this.value)" placeholder="تويوتا"></div>
+        <div><label class="field-label">الموديل</label><input class="field-input" value="${w.model}" oninput="wSet('model',this.value)" placeholder="كامري"></div>
+        <div><label class="field-label">سنة الصنع</label><input type="number" class="field-input" value="${w.year}" oninput="wSet('year',this.value)" placeholder="2023"></div>
+        <div><label class="field-label">الممشى (كم)</label><input type="number" class="field-input" value="${w.mileage}" oninput="wSet('mileage',this.value)" placeholder="20000"></div>
+        <div><label class="field-label">نوع الوقود</label><select class="field-input" onchange="wSet('fuel',this.value)"><option value="">اختر</option>${['بنزين','ديزل','كهرباء','هجين'].map(f=>`<option ${w.fuel===f?'selected':''}>${f}</option>`).join('')}</select></div>
+        <div><label class="field-label">ناقل الحركة</label><select class="field-input" onchange="wSet('trans',this.value)"><option value="">اختر</option><option ${w.trans==='أوتوماتيك'?'selected':''}>أوتوماتيك</option><option ${w.trans==='مانيوال'?'selected':''}>مانيوال</option></select></div>
+      </div>
+      ${wizardNav(true, w.brand && w.model && w.year)}`;
+    }
+  }
+  if(w.step===3){
+    return `<h2 class="font-bold text-lg mb-4">المعلومات الأساسية</h2>
+    <div class="space-y-3">
+      <div><label class="field-label">عنوان الإعلان</label><input class="field-input" value="${w.title}" oninput="wSet('title',this.value)" placeholder="مثال: فيلا للبيع في حي النرجس"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="field-label">السعر (ر.س)</label><input type="number" class="field-input" value="${w.price}" oninput="wSet('price',this.value)"></div>
+        ${w.kind==='property'? `<div><label class="field-label">المساحة (م²)</label><input type="number" class="field-input" value="${w.area}" oninput="wSet('area',this.value)"></div>` : `<div><label class="field-label">حالة السيارة</label><select class="field-input" onchange="wSet('condition',this.value)"><option value="">اختر</option><option ${w.condition==='جديدة'?'selected':''}>جديدة</option><option ${w.condition==='مستعمل بحالة ممتازة'?'selected':''}>مستعمل بحالة ممتازة</option><option ${w.condition==='مستعمل بحالة جيدة'?'selected':''}>مستعمل بحالة جيدة</option></select></div>`}
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="field-label">المدينة</label><select class="field-input" onchange="wSet('city',this.value)"><option value="">اختر</option>${CITIES.map(c=>`<option ${w.city===c?'selected':''}>${c}</option>`).join('')}</select></div>
+        ${w.kind==='property'? `<div><label class="field-label">الحي</label><input class="field-input" value="${w.hood}" oninput="wSet('hood',this.value)"></div>` : ''}
+      </div>
+      ${w.kind==='property'? `<div><label class="field-label">الشارع</label><input class="field-input" value="${w.street}" oninput="wSet('street',this.value)"></div>`:''}
+      <div><label class="field-label">الوصف</label><textarea rows="3" class="field-input" oninput="wSet('desc',this.value)">${w.desc}</textarea></div>
+    </div>
+    ${wizardNav(true, w.title && w.price && w.city)}`;
+  }
+  if(w.step===4){
+    if(w.kind==='property'){
+      return `<h2 class="font-bold text-lg mb-4">مواصفات العقار</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="field-label">عدد الغرف</label><input type="number" class="field-input" value="${w.rooms}" oninput="wSet('rooms',this.value)"></div>
+        <div><label class="field-label">دورات المياه</label><input type="number" class="field-input" value="${w.baths}" oninput="wSet('baths',this.value)"></div>
+        <div><label class="field-label">الصالات</label><input type="number" class="field-input" value="${w.living}" oninput="wSet('living',this.value)"></div>
+        <div><label class="field-label">عمر العقار</label><select class="field-input" onchange="wSet('age',this.value)"><option value="">اختر</option>${['جديد','أقل من 5 سنوات','متوسط','مستخدم'].map(a=>`<option ${w.age===a?'selected':''}>${a}</option>`).join('')}</select></div>
+        <div><label class="field-label">عرض الشارع (م)</label><input type="number" class="field-input" value="${w.swidth}" oninput="wSet('swidth',this.value)"></div>
+        <div><label class="field-label">الواجهة</label><input class="field-input" value="${w.facing}" oninput="wSet('facing',this.value)"></div>
+      </div>
+      <div class="mt-3 flex gap-2">
+        <button onclick="wSet('furnished','مفروش')" class="chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${w.furnished==='مفروش'}">مفروش</button>
+        <button onclick="wSet('furnished','غير مفروش')" class="chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${w.furnished==='غير مفروش'}">غير مفروش</button>
+      </div>
+      ${wizardNav(true, true)}`;
+    } else {
+      return `<h2 class="font-bold text-lg mb-4">الوسائط</h2>
+      ${mediaStepBody()}
+      ${wizardNav(true, true)}`;
+    }
+  }
+  if(w.step===5){
+    if(w.kind==='property'){ return `<h2 class="font-bold text-lg mb-4">الوسائط</h2>${mediaStepBody()}${wizardNav(true,true)}`; }
+    return contactStepBody();
+  }
+  if(w.step===6){
+    if(w.kind==='property'){ return `<h2 class="font-bold text-lg mb-4">الموقع</h2>${locationStepBody()}${wizardNav(true,true)}`; }
+    return previewStepBody();
+  }
+  if(w.step===7){
+    if(w.kind==='property'){ return contactStepBody(); }
+  }
+  if(w.step===8){
+    if(w.kind==='property'){ return previewStepBody(); }
+  }
+  return '';
+}
+function mediaStepBody(){
+  const w = wizard;
+  w.media = w.media || [0,1,2];
+  return `<p class="text-sm mb-3" style="color:var(--text-muted)">أضف صوراً توضيحية (تجريبية) لإعلانك. يمكنك إعادة ترتيبها واختيار الصورة الرئيسية.</p>
+  <div class="grid grid-cols-3 gap-3">
+    ${w.media.map((m,i)=>`<div class="relative aspect-square rounded-xl overflow-hidden">${placeholderImg(m, w.kind==='vehicle'?'سيارة':(w.ptype||'فيلا'))}
+      ${i===0? `<span class="absolute top-1.5 right-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:var(--accent); color:var(--accent-contrast)">الرئيسية</span>`:''}
+      <button onclick="removeMedia(${i})" class="absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:rgba(16,15,12,.6); color:#fff">✕</button>
+    </div>`).join('')}
+    <button onclick="addMedia()" class="aspect-square rounded-xl border-2 border-dashed flex items-center justify-center tap" style="border-color:var(--border)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </div>`;
+}
+function addMedia(){ wizard.media = wizard.media||[0,1,2]; wizard.media.push(wizard.media.length); renderWizard(); }
+function removeMedia(i){ wizard.media.splice(i,1); renderWizard(); }
+function locationStepBody(){
+  const w = wizard;
+  return `<p class="text-sm mb-3" style="color:var(--text-muted)">حدد موقع العقار على الخريطة (تجريبي) بالنقر لتحريك الدبوس.</p>
+  <div onclick="placePin(event)" class="surface rounded-2xl relative cursor-crosshair" style="height:240px; background:var(--surface-2); overflow:hidden;">
+    <svg class="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
+      ${Array.from({length:7}).map((_,i)=>`<line x1="${i*16}" y1="0" x2="${i*16}" y2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
+      ${Array.from({length:7}).map((_,i)=>`<line y1="${i*16}" x1="0" y2="${i*16}" x2="100" stroke="var(--border)" stroke-width="0.3"/>`).join('')}
+    </svg>
+    <div id="pin" style="position:absolute; right:${w.pinX||48}%; top:${w.pinY||45}%; transform:translate(50%,-100%);">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7Z"/></svg>
+    </div>
+  </div>
+  <p class="text-xs mt-2" style="color:var(--text-muted)">تم حفظ الإحداثيات التقريبية بنجاح.</p>`;
+}
+function placePin(e){
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = 100 - ((e.clientX-rect.left)/rect.width*100);
+  const y = (e.clientY-rect.top)/rect.height*100;
+  wizard.pinX = x.toFixed(1); wizard.pinY = y.toFixed(1);
+  const pin = document.getElementById('pin');
+  if(pin){ pin.style.right = x+'%'; pin.style.top = y+'%'; }
+}
+function contactStepBody(){
+  const w = wizard;
+  return `<h2 class="font-bold text-lg mb-4">معلومات التواصل</h2>
+  <div class="space-y-3">
+    <div><label class="field-label">اسم المعلن / المكتب</label><input class="field-input" value="${w.contactName}" oninput="wSet('contactName',this.value)" placeholder="اسمك أو اسم المكتب"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="field-label">رقم الجوال</label><input class="field-input" value="${w.phone}" oninput="wSet('phone',this.value)" placeholder="05xxxxxxxx"></div>
+      <div><label class="field-label">رقم واتساب</label><input class="field-input" value="${w.whatsapp}" oninput="wSet('whatsapp',this.value)" placeholder="05xxxxxxxx"></div>
+    </div>
+    <div><label class="field-label">وسيلة التواصل المفضلة</label>
+      <div class="flex gap-2">
+        ${['اتصال','واتساب','مراسلة'].map(m=>`<button onclick="wSet('prefer','${m}')" class="chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${w.prefer===m}">${m}</button>`).join('')}
+      </div>
+    </div>
+  </div>
+  ${wizardNav(true, w.contactName && w.phone)}`;
+}
+function previewStepBody(){
+  const w = wizard;
+  const fakeP = {id:'preview', title:w.title||'بدون عنوان', tx:w.tx||'للبيع', type:w.ptype||'عقار', city:w.city||'-', hood:w.hood||'-', price:+w.price||0, area:+w.area||0, rooms:+w.rooms||null, baths:+w.baths||null, featured:false, ref:'DL-PREVIEW', office:'rowaa'};
+  return `<h2 class="font-bold text-lg mb-4">معاينة الإعلان</h2>
+  <div class="max-w-xs mx-auto">
+    ${w.kind==='property'? propertyCard(fakeP,0) : vehicleCard({id:'preview',brand:w.brand,model:w.model,year:w.year,tx:w.tx,price:+w.price||0,mileage:+w.mileage||0,fuel:w.fuel,trans:w.trans,city:w.city},0)}
+  </div>
+  <p class="text-xs text-center mt-4" style="color:var(--text-muted)">هكذا سيظهر إعلانك في نتائج البحث.</p>
+  <div class="flex flex-col sm:flex-row gap-2 mt-6">
+    <button onclick="wizPrev()" class="btn-ghost flex-1">رجوع</button>
+    <button onclick="saveDraft()" class="btn-ghost flex-1">حفظ كمسودة</button>
+    <button onclick="publishListing()" class="btn-primary flex-1">نشر الإعلان</button>
+  </div>`;
+}
+function wizardNav(showBack, canNext){
+  return `<div class="flex gap-2 mt-6">
+    ${showBack? `<button onclick="wizPrev()" class="btn-ghost flex-1">رجوع</button>`:''}
+    <button onclick="wizNext()" ${canNext? '':'disabled'} class="btn-primary flex-1" style="${canNext?'':'opacity:.5; cursor:not-allowed;'}">التالي</button>
+  </div>`;
+}
+function wSet(k,v){ wizard[k]=v; renderWizard(); }
+function renderWizard(){ const el = document.getElementById('wizardBody'); if(el) el.innerHTML = wizardStep(); }
+function wizNext(){ wizard.step++; renderAddPage(); }
+function wizPrev(){ wizard.step--; renderAddPage(); }
+function renderAddPage(){ document.getElementById('app').innerHTML = `<div class="animate-in">${viewAddListing()}</div>`; window.scrollTo({top:0}); }
+function saveDraft(){ toast('تم حفظ الإعلان كمسودة'); }
+function publishListing(){
+  const w = wizard;
+  const id = (w.kind==='property'?'up':'uv') + Date.now();
+  if(w.kind==='property'){
+    userProperties.push({id, title:w.title, tx:w.tx, type:w.ptype, city:w.city, hood:w.hood||'-', price:+w.price||0, area:+w.area||0, rooms:+w.rooms||null, baths:+w.baths||null, living:+w.living||null, age:w.age||null, furnished:w.furnished||null, street:+w.swidth||null, facing:w.facing||null, office:'rowaa', featured:false, ref:'DL-'+(2000+userProperties.length+1), desc:w.desc||'لا يوجد وصف إضافي.'});
+    LS.set('dalalah_user_properties', userProperties);
+  } else {
+    userVehicles.push({id, brand:w.brand, model:w.model, year:+w.year||2024, tx:w.tx, price:+w.price||0, mileage:+w.mileage||0, fuel:w.fuel||'بنزين', trans:w.trans||'أوتوماتيك', city:w.city, condition:w.condition||'مستعمل', office:'rowaa', ref:'DLC-'+(300+userVehicles.length+1), desc:w.desc||'لا يوجد وصف إضافي.'});
+    LS.set('dalalah_user_vehicles', userVehicles);
+  }
+  wizard = freshWizard();
+  navigate('/property/'+id, {});
+  if(userVehicles.find(v=>v.id===id)) navigate('/vehicle/'+id, {});
+  toast('تم نشر إعلانك بنجاح');
+}
+
+/* ===================== DASHBOARD (OFFICE) ===================== */
+const CURRENT_OFFICE = 'rowaa';
+function viewDashboard(params){
+  const tab = params.get('tab')||'home';
+  const o = officeById(CURRENT_OFFICE);
+  const myProps = properties().filter(p=>p.office===CURRENT_OFFICE);
+  const myVehicles = vehicles().filter(v=>v.office===CURRENT_OFFICE);
+  const all = [...myProps, ...myVehicles];
+  const active = all.filter(x=>x.status==='active').length;
+
+  const tabs = [
+    ['home','الرئيسية'],['listings','إعلاناتي'],['add','إضافة إعلان'],['messages','الرسائل'],['favorites','المفضلة'],['office','بيانات المكتب'],['settings','الإعدادات']
+  ];
+
+  return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-12 h-12 rounded-xl" style="background:${o.grad}"></div>
+      <div><h1 class="font-display text-xl font-bold">لوحة تحكم ${o.name}</h1><p class="text-xs" style="color:var(--text-muted)">مرحباً بك مجدداً</p></div>
+    </div>
+    <div class="grid lg:grid-cols-[220px_1fr] gap-6">
+      <aside class="surface rounded-2xl p-3 h-fit overflow-x-scroll-x scrollbar-none flex lg:flex-col gap-1">
+        ${tabs.map(([k,label])=>`<a href="#/dashboard?tab=${k}" class="shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold tap" style="${tab===k?'background:var(--accent);color:var(--accent-contrast)':'color:var(--text)'}">${label}</a>`).join('')}
+      </aside>
+      <div>
+        ${tab==='home'? dashHome(active, all) : tab==='listings'? dashListings(all) : tab==='add'? `<div class="surface rounded-2xl p-8 text-center"><p class="mb-4 font-bold">أضف إعلاناً جديداً لمكتبك</p><a href="#/add" class="btn-primary inline-block">فتح نموذج الإضافة</a></div>` : tab==='messages'? dashMessages() : tab==='favorites'? dashFavorites() : tab==='office'? dashOfficeInfo(o) : dashSettings()}
+      </div>
+    </div>
+  </div>`;
+}
+function dashHome(active, all){
+  const views = 1240 + all.length*37;
+  const contacts = 18 + all.length*2;
+  const saved = 9 + all.length;
+  return `<div class="grid sm:grid-cols-4 gap-4 mb-8">
+    ${[['الإعلانات النشطة',active],['إجمالي المشاهدات',fmtNum(views)],['طلبات التواصل',contacts],['الإعلانات المحفوظة',saved]].map(([k,v])=>`
+    <div class="surface rounded-2xl p-5"><p class="text-xs" style="color:var(--text-muted)">${k}</p><p class="font-display font-bold text-2xl mt-2">${v}</p></div>`).join('')}
+  </div>
+  <div class="surface rounded-2xl p-5">
+    <h3 class="font-bold mb-4">أداء المشاهدات (آخر 7 أيام)</h3>
+    <div class="flex items-end gap-2 h-40">
+      ${[40,65,50,80,55,90,70].map(h=>`<div class="flex-1 rounded-t-lg" style="height:${h}%; background:var(--accent-soft); position:relative;"><div class="absolute bottom-0 inset-x-0 rounded-t-lg" style="height:60%; background:var(--accent)"></div></div>`).join('')}
+    </div>
+  </div>`;
+}
+function dashListings(all){
+  return `<div class="surface rounded-2xl overflow-hidden">
+    <div class="overflow-x-scroll-x">
+    <table class="w-full text-sm">
+      <thead><tr class="text-right border-b" style="border-color:var(--border); color:var(--text-muted)">
+        <th class="p-3 font-bold">الإعلان</th><th class="p-3 font-bold">السعر</th><th class="p-3 font-bold">الحالة</th><th class="p-3 font-bold">إجراءات</th>
+      </tr></thead>
+      <tbody>
+        ${all.map(x=>`<tr class="border-b" style="border-color:var(--border)">
+          <td class="p-3"><a href="#/${x.brand?'vehicle':'property'}/${x.id}" class="font-bold hover:underline">${x.title || (x.brand+' '+x.model)}</a></td>
+          <td class="p-3">${fmtPrice(x.price)}</td>
+          <td class="p-3"><span class="text-xs font-bold px-2 py-1 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">${x.status==='active'?'نشط':statusLabel(x.status)}</span></td>
+          <td class="p-3">
+            <div class="flex gap-1.5 flex-wrap">
+              <button onclick="setListingStatus('${x.id}','paused')" class="chip rounded-full px-2.5 py-1 text-xs tap">إيقاف</button>
+              <button onclick="setListingStatus('${x.id}','${x.brand?'rented':'sold'}')" class="chip rounded-full px-2.5 py-1 text-xs tap">${x.brand?'وضع كمؤجر':'وضع كمباع'}</button>
+              <button onclick="setListingStatus('${x.id}','active')" class="chip rounded-full px-2.5 py-1 text-xs tap">إعادة نشر</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>
+    ${!all.length? emptyState('لا توجد إعلانات بعد','ابدأ بإضافة أول إعلان لمكتبك.'):''}
+  </div>`;
+}
+function setListingStatus(id, status){
+  statusOverrides[id] = status;
+  LS.set('dalalah_status', statusOverrides);
+  toast('تم تحديث حالة الإعلان');
+  render();
+}
+function dashMessages(){
+  const msgs = [
+    {name:'سلطان العتيبي', text:'هل ما زال العقار متاحاً؟', time:'قبل ساعة'},
+    {name:'منى الحربي', text:'أرغب بمعاينة الفيلا هذا الأسبوع', time:'أمس'},
+    {name:'فهد القحطاني', text:'ما هو آخر سعر ممكن؟', time:'قبل يومين'},
+  ];
+  return `<div class="surface rounded-2xl divide-y" style="border-color:var(--border)">
+    ${msgs.map(m=>`<div class="p-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold shrink-0" style="background:var(--accent-soft); color:var(--accent-dark)">${m.name.charAt(0)}</div>
+      <div class="min-w-0 flex-1"><p class="font-bold text-sm">${m.name}</p><p class="text-xs truncate" style="color:var(--text-muted)">${m.text}</p></div>
+      <span class="text-[11px] shrink-0" style="color:var(--text-muted)">${m.time}</span>
+    </div>`).join('')}
+  </div>`;
+}
+function dashFavorites(){ return viewFavorites(true); }
+function dashOfficeInfo(o){
+  return `<div class="surface rounded-2xl p-6 max-w-lg space-y-3">
+    <div><label class="field-label">اسم المكتب</label><input class="field-input" value="${o.name}"></div>
+    <div><label class="field-label">المدينة</label><input class="field-input" value="${o.city}"></div>
+    <div><label class="field-label">العنوان</label><input class="field-input" value="${o.address}"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="field-label">الجوال</label><input class="field-input" value="${o.phone}"></div>
+      <div><label class="field-label">واتساب</label><input class="field-input" value="${o.whatsapp}"></div>
+    </div>
+    <div><label class="field-label">ساعات العمل</label><input class="field-input" value="${o.hours}"></div>
+    <button onclick="toast('تم حفظ بيانات المكتب')" class="btn-primary">حفظ التغييرات</button>
+  </div>`;
+}
+function dashSettings(){
+  return `<div class="surface rounded-2xl p-6 max-w-lg space-y-4">
+    <div class="flex items-center justify-between"><p class="font-bold text-sm">إشعارات البريد الإلكتروني</p><input type="checkbox" checked class="w-5 h-5"></div>
+    <div class="flex items-center justify-between"><p class="font-bold text-sm">إشعارات واتساب</p><input type="checkbox" checked class="w-5 h-5"></div>
+    <div class="flex items-center justify-between"><p class="font-bold text-sm">إظهار رقم الجوال للعامة</p><input type="checkbox" class="w-5 h-5"></div>
+    <button onclick="toast('تم حفظ الإعدادات')" class="btn-primary">حفظ</button>
+  </div>`;
+}
+
+/* ===================== FAVORITES / ACCOUNT ===================== */
+function viewFavorites(embedded){
+  const favProps = properties().filter(p=>favorites.has(p.id));
+  const favVeh = vehicles().filter(v=>favorites.has(v.id));
+  const body = (favProps.length+favVeh.length)? `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+      ${favProps.map((p,i)=>propertyCard(p,i)).join('')}
+      ${favVeh.map((v,i)=>vehicleCard(v,i)).join('')}
+    </div>` : emptyState('لا توجد عناصر في المفضلة', 'اضغط على أيقونة القلب في أي إعلان لحفظه هنا.');
+  if(embedded) return body;
+  return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <h1 class="font-display text-2xl font-bold mb-6">المفضلة</h1>
+    ${body}
+  </div>`;
+}
+function viewAccount(){
+  return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <h1 class="font-display text-2xl font-bold mb-1">حسابي</h1>
+    <p class="text-sm mb-8" style="color:var(--text-muted)">تصفح دِلالة بدون حساب، أو أنشئ حساباً لحفظ المفضلة وعمليات البحث.</p>
+    <div class="grid sm:grid-cols-2 gap-5 mb-10">
+      <div class="surface rounded-2xl p-6">
+        <h3 class="font-bold mb-3">تسجيل الدخول</h3>
+        <form onsubmit="return doLogin(event)" class="space-y-3">
+          <input required class="field-input" placeholder="رقم الجوال">
+          <input required type="password" class="field-input" placeholder="كلمة المرور">
+          <button class="btn-primary w-full">دخول</button>
+        </form>
+      </div>
+      <div class="surface rounded-2xl p-6">
+        <h3 class="font-bold mb-3">حساب جديد</h3>
+        <p class="text-sm mb-4" style="color:var(--text-muted)">أنشئ حساباً لحفظ عقاراتك المفضلة وعمليات البحث والتواصل مع المكاتب.</p>
+        <button onclick="doLogin(event)" class="btn-ghost w-full">إنشاء حساب</button>
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-4 gap-3">
+      ${[['المفضلة','/favorites'],['عمليات البحث المحفوظة','/account'],['إعلاناتي','/dashboard'],['الرسائل','/dashboard?tab=messages']].map(([label,href])=>`<a href="#${href}" class="surface rounded-xl p-4 text-center hover-lift tap"><p class="font-bold text-sm">${label}</p></a>`).join('')}
+    </div>
+  </div>`;
+}
+function doLogin(e){ if(e) e.preventDefault(); toast('هذه نسخة تجريبية — تسجيل الدخول غير مفعّل'); return false; }
+
+/* ===================== ADMIN ===================== */
+function viewAdmin(params){
+  const tab = params.get('tab')||'offices';
+  const tabs = [['offices','المكاتب العقارية'],['listings','العقارات والسيارات'],['reports','البلاغات'],['featured','العروض المميزة']];
+  return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <h1 class="font-display text-2xl font-bold mb-1">لوحة الإدارة</h1>
+    <p class="text-sm mb-6" style="color:var(--text-muted)">إدارة المكاتب والإعلانات والبلاغات على منصة دِلالة</p>
+    <div class="flex gap-2 overflow-x-scroll-x scrollbar-none mb-6">
+      ${tabs.map(([k,l])=>`<a href="#/admin?tab=${k}" class="shrink-0 chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${tab===k}">${l}</a>`).join('')}
+    </div>
+    ${tab==='offices'? adminOffices() : tab==='listings'? adminListings() : tab==='reports'? adminReports() : adminFeatured()}
+  </div>`;
+}
+function adminOffices(){
+  return `<div class="surface rounded-2xl overflow-hidden">
+    <div class="overflow-x-scroll-x"><table class="w-full text-sm">
+      <thead><tr class="text-right border-b" style="border-color:var(--border); color:var(--text-muted)"><th class="p-3">المكتب</th><th class="p-3">المدينة</th><th class="p-3">التوثيق</th><th class="p-3">إجراءات</th></tr></thead>
+      <tbody>${OFFICES.map(o0=>{const o=officeById(o0.id); return `<tr class="border-b" style="border-color:var(--border)">
+        <td class="p-3 font-bold"><a href="#/office/${o.id}" class="hover:underline">${o.name}</a></td>
+        <td class="p-3">${o.city}</td>
+        <td class="p-3">${o.verified? '<span class="text-xs font-bold px-2 py-1 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">موثّق</span>':'<span class="text-xs font-bold px-2 py-1 rounded-full" style="background:var(--gold-soft); color:var(--gold)">غير موثّق</span>'}</td>
+        <td class="p-3"><div class="flex gap-1.5"><button onclick="toggleVerify('${o.id}')" class="chip rounded-full px-2.5 py-1 text-xs tap">${o.verified?'إلغاء التوثيق':'توثيق'}</button><button onclick="toast('تم إيقاف الحساب مؤقتاً')" class="chip rounded-full px-2.5 py-1 text-xs tap">تعليق</button></div></td>
+      </tr>`}).join('')}</tbody>
+    </table></div>
+  </div>`;
+}
+function toggleVerify(id){ const cur = officeById(id).verified; officeVerifyOverrides[id]=!cur; LS.set('dalalah_office_verify', officeVerifyOverrides); render(); }
+function adminListings(){
+  const all = [...properties(), ...vehicles()];
+  return `<div class="surface rounded-2xl overflow-hidden">
+    <div class="overflow-x-scroll-x"><table class="w-full text-sm">
+      <thead><tr class="text-right border-b" style="border-color:var(--border); color:var(--text-muted)"><th class="p-3">الإعلان</th><th class="p-3">المكتب</th><th class="p-3">الحالة</th><th class="p-3">إجراءات</th></tr></thead>
+      <tbody>${all.map(x=>`<tr class="border-b" style="border-color:var(--border)">
+        <td class="p-3 font-bold"><a href="#/${x.brand?'vehicle':'property'}/${x.id}" class="hover:underline">${x.title||(x.brand+' '+x.model)}</a></td>
+        <td class="p-3">${officeById(x.office)?.name||'-'}</td>
+        <td class="p-3">${x.status==='active'?'نشط':statusLabel(x.status)}</td>
+        <td class="p-3"><div class="flex gap-1.5 flex-wrap"><button onclick="setListingStatus('${x.id}','active')" class="chip rounded-full px-2.5 py-1 text-xs tap">نشر</button><button onclick="setListingStatus('${x.id}','hidden')" class="chip rounded-full px-2.5 py-1 text-xs tap">إخفاء</button><button onclick="adminDelete('${x.id}')" class="chip rounded-full px-2.5 py-1 text-xs tap" style="color:var(--danger)">حذف</button></div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>`;
+}
+function adminDelete(id){ statusOverrides[id]='hidden'; LS.set('dalalah_status', statusOverrides); toast('تم حذف الإعلان'); render(); }
+function adminReports(){
+  if(!reports.length) return emptyState('لا توجد بلاغات حالياً','ستظهر هنا البلاغات التي يرسلها المستخدمون.');
+  return `<div class="space-y-3">${reports.map((r,i)=>`<div class="surface rounded-xl p-4 flex items-center justify-between gap-3">
+    <div><p class="font-bold text-sm">إعلان: ${r.id}</p><p class="text-xs" style="color:var(--text-muted)">السبب: ${r.reason}</p></div>
+    <button onclick="dismissReport(${i})" class="chip rounded-full px-3 py-1.5 text-xs tap">تجاهل</button>
+  </div>`).join('')}</div>`;
+}
+function dismissReport(i){ reports.splice(i,1); LS.set('dalalah_reports', reports); render(); }
+function adminFeatured(){
+  const list = properties().filter(p=>p.status==='active');
+  return `<div class="grid sm:grid-cols-2 gap-3">${list.map(p=>`<div class="surface rounded-xl p-4 flex items-center justify-between gap-3">
+    <div class="min-w-0"><p class="font-bold text-sm truncate">${p.title}</p><p class="text-xs" style="color:var(--text-muted)">${p.city}</p></div>
+    <button onclick="toast('تم تحديث حالة التمييز')" class="chip rounded-full px-3 py-1.5 text-xs tap" data-active="${p.featured}">${p.featured?'مميز':'تمييز'}</button>
+  </div>`).join('')}</div>`;
+}
+
+/* ===================== REPORT / SHARE ===================== */
+let reportTargetId = null;
+function openReport(id){
+  reportTargetId = id;
+  document.getElementById('reportReasons').innerHTML = REPORT_REASONS.map((r,i)=>`
+    <label class="flex items-center gap-2 text-sm p-2.5 rounded-lg" style="border:1px solid var(--border)">
+      <input type="radio" name="reportReason" value="${r}" ${i===0?'checked':''}> ${r}
+    </label>`).join('');
+  reportDialog.showModal();
+}
+function submitReport(){
+  const sel = document.querySelector('input[name="reportReason"]:checked');
+  reports.push({id:reportTargetId, reason: sel? sel.value: REPORT_REASONS[0]});
+  LS.set('dalalah_reports', reports);
+  reportDialog.close();
+  toast('تم استلام بلاغك، شكراً لك');
+}
+let shareTarget = null;
+function openShare(id, kind){
+  shareTarget = {id, kind};
+  const url = location.href.split('#')[0] + '#/' + kind + '/' + id;
+  document.getElementById('shareWhatsapp').href = 'https://wa.me/?text=' + encodeURIComponent(url);
+  shareDialog.showModal();
+}
+function copyShareLink(){
+  const url = location.href.split('#')[0] + '#/' + shareTarget.kind + '/' + shareTarget.id;
+  navigator.clipboard?.writeText(url).then(()=>toast('تم نسخ الرابط')).catch(()=>toast('تعذر نسخ الرابط'));
+}
+
+function afterRender(path){
+  // no-op hook reserved for future per-route side effects
+}
+</script>
+</body>
+</html>
