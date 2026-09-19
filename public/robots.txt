@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dalalah-sa.vercel.app/sitemap.xml
