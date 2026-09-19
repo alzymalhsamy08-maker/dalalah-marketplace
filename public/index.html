@@ -190,7 +190,7 @@ input[type=range]{accent-color:var(--accent);}
 </footer>
 
 <nav class="fixed bottom-0 inset-x-0 z-40 md:hidden border-t" style="background:var(--surface); border-color:var(--border);">
-  <div class="grid grid-cols-5 items-end text-[11px]">
+  <div id="mobileBottomNavGrid" class="grid items-end text-[11px]" style="grid-template-columns:repeat(4,minmax(0,1fr));">
     <a href="#/" class="flex flex-col items-center gap-1 py-2.5 bottom-link" data-route="/"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>الرئيسية</a>
     <a href="#/properties" class="flex flex-col items-center gap-1 py-2.5 bottom-link" data-route="/properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>استكشف</a>
     <a href="#/add" class="flex flex-col items-center -mt-5">
@@ -475,6 +475,11 @@ function updateRoleUI(){
   document.querySelectorAll('a[href="#/add"], a[href="#/dashboard"]').forEach(el=>{
     el.style.display = office ? '' : 'none';
   });
+
+  const bottomNav = document.getElementById('mobileBottomNavGrid');
+  if(bottomNav){
+    bottomNav.style.gridTemplateColumns = `repeat(${office ? 5 : 4}, minmax(0,1fr))`;
+  }
 }
 async function initBackend(){
   try{
