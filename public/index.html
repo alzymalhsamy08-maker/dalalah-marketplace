@@ -683,14 +683,16 @@ function viewHome(){
     </div>
   </section>
 
+  ${feat.length ? `
   <section class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
     ${sectionHeader('عروض مميزة', null, 'عرض الكل', '#/properties')}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
       ${feat.map((p,i)=>propertyCard(p,i)).join('')}
     </div>
   </section>
+  ` : ''}
 
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 ${feat.length ? 'pb-14' : 'py-14'}">
     ${sectionHeader('أحدث العروض', null, 'عرض الكل', '#/properties?sort=latest')}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
       ${latest.map((p,i)=>propertyCard(p,i+2)).join('')}
