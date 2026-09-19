@@ -969,13 +969,6 @@ function viewPropertyDetails(id){
         </div>
 
         <div class="mt-8">
-          <h3 class="font-bold text-lg mb-3">مميزات العقار</h3>
-          <div class="flex flex-wrap gap-2">
-            ${["موقف سيارات","تكييف مركزي","أمن وحراسة","قريب من الخدمات","مصعد"].map(f=>`<span class="chip rounded-full px-3 py-1.5 text-xs">${f}</span>`).join('')}
-          </div>
-        </div>
-
-        <div class="mt-8">
           <h3 class="font-bold text-lg mb-3">موقع العقار</h3>
           ${p.latitude && p.longitude
             ? `<div id="propertyDetailsMap" data-lat="${p.latitude}" data-lng="${p.longitude}" class="rounded-2xl overflow-hidden border" style="height:300px; border-color:var(--border)"></div>
