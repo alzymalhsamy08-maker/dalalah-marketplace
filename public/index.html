@@ -1063,11 +1063,11 @@ function publicOfficeUrl(slug){
   return location.origin + '/' + encodeURIComponent(slug);
 }
 
-async function sharePublicOffice(slug, officeName){
+async function sharePublicOffice(slug){
   const url = publicOfficeUrl(slug);
   if(navigator.share){
     try{
-      await navigator.share({title:officeName + ' | دِلالة', url});
+      await navigator.share({url});
       return;
     }catch(e){
       if(e?.name === 'AbortError') return;
@@ -1111,7 +1111,7 @@ function viewPublicOffice(slug){
           <p class="text-sm mt-2" style="color:var(--text-muted)">${total} إعلان نشط</p>
           <p class="text-xs mt-2" dir="ltr" style="color:var(--text-muted)">${publicOfficeUrl(office.slug)}</p>
         </div>
-        <button onclick="sharePublicOffice('${office.slug}',${JSON.stringify(office.office_name||'مكتب عقاري')})"
+        <button onclick="sharePublicOffice('${office.slug}')"
                 class="btn-primary shrink-0">مشاركة الصفحة</button>
       </div>
     </section>
@@ -1940,7 +1940,7 @@ function viewAccount(){
           </form>
           ${currentProfile?.slug ? `<div class="flex flex-wrap items-center gap-2 mt-3">
             <a href="/${currentProfile.slug}" class="text-sm font-bold underline" style="color:var(--accent)" target="_blank">${location.origin}/${currentProfile.slug}</a>
-            <button onclick="sharePublicOffice('${currentProfile.slug}',${JSON.stringify(currentProfile.office_name||'مكتب عقاري')})" class="chip rounded-full px-3 py-1.5 text-xs font-bold">مشاركة</button>
+            <button onclick="sharePublicOffice('${currentProfile.slug}')" class="chip rounded-full px-3 py-1.5 text-xs font-bold">مشاركة</button>
           </div>` : ''}
         </div>` : ''}
 
