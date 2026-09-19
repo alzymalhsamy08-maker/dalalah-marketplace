@@ -382,7 +382,7 @@ async function loadCurrentProfile(){
   if(!currentUser) return;
   const {data,error} = await supabaseClient
     .from('profiles')
-    .select('id,account_type,office_name')
+    .select('id,account_type,office_name,slug')
     .eq('id',currentUser.id)
     .maybeSingle();
   if(error){
@@ -462,11 +462,14 @@ function heartSvg(active){
 
 /* ===================== ROUTER ===================== */
 function parseHash(){
-  let h = location.hash.replace(/^#/,'') || '/';
-  let [path, qs] = h.split('?');
-  path = path.replace(/\/+$/,'') || '/';
-  const params = new URLSearchParams(qs||'');
-  return {path, params};
+  if(location.hash && location.hash.startsWith('#/')){
+    let h = location.hash.replace(/^#/,'') || '/';
+    let [path, qs] = h.split('?');
+    path = path.replace(/\/+$/,'') || '/';
+    return {path, params:new URLSearchParams(qs||'')};
+  }
+  const path = decodeURIComponent((location.pathname||'/').replace(/\/+$/,'') || '/');
+  return {path, params:new URLSearchParams(location.search||'')};
 }
 function navigate(path, params){
   const qs = params ? '?'+new URLSearchParams(params).toString() : '';
@@ -499,6 +502,7 @@ function render(){
     else if(seg[0]==='favorites') html = viewFavorites();
     else if(seg[0]==='account') html = viewAccount();
     else if(seg[0]==='admin') html = view404();
+    else if(seg.length===1) html = viewPublicOffice(seg[0]);
     else html = view404();
   }catch(err){ console.error(err); html = view404(); }
   app.innerHTML = `<div class="animate-in">${html}</div>`;
@@ -1033,6 +1037,127 @@ function viewPropertyDetails(id){
 function openGallery(){ galleryDialog.showModal(); }
 function openInquiry(){ inquiryDialog.showModal(); }
 function sendInquiry(e){ e.preventDefault(); inquiryDialog.close(); toast('تم إرسال رسالتك إلى المعلن'); return false; }
+
+
+/* ===================== PUBLIC OFFICE PAGE ===================== */
+const publicOfficeCache = {};
+const publicOfficeLoading = new Set();
+
+async function loadPublicOfficeBySlug(slug){
+  const key = String(slug||'').toLowerCase();
+  if(!key || publicOfficeLoading.has(key) || publicOfficeCache[key] !== undefined) return;
+  publicOfficeLoading.add(key);
+  const {data,error} = await supabaseClient.rpc('get_public_office_by_slug',{p_slug:key});
+  publicOfficeLoading.delete(key);
+  if(error){
+    console.error('Public office:',error);
+    publicOfficeCache[key] = false;
+  }else{
+    const row = Array.isArray(data) ? data[0] : data;
+    publicOfficeCache[key] = row || false;
+  }
+  render();
+}
+
+function publicOfficeUrl(slug){
+  return location.origin + '/' + encodeURIComponent(slug);
+}
+
+async function sharePublicOffice(slug, officeName){
+  const url = publicOfficeUrl(slug);
+  if(navigator.share){
+    try{
+      await navigator.share({title:officeName + ' | دِلالة', url});
+      return;
+    }catch(e){
+      if(e?.name === 'AbortError') return;
+    }
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    toast('تم نسخ رابط المكتب');
+  }catch(e){
+    toast(url);
+  }
+}
+
+function viewPublicOffice(slug){
+  const key = String(slug||'').toLowerCase();
+  const office = publicOfficeCache[key];
+
+  if(office === undefined){
+    loadPublicOfficeBySlug(key);
+    return `<div class="max-w-3xl mx-auto px-4 py-20 text-center">
+      <div class="surface rounded-2xl p-8"><p class="font-bold">جاري تحميل صفحة المكتب...</p></div>
+    </div>`;
+  }
+
+  if(!office) return view404();
+
+  const myProperties = properties().filter(p=>p.ownerId===office.id && p.status==='active');
+  const myVehicles = vehicles().filter(v=>v.ownerId===office.id && v.status==='active');
+  const total = myProperties.length + myVehicles.length;
+
+  return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <section class="surface rounded-3xl p-6 sm:p-8 mb-8 card-shadow">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+        <div class="w-20 h-20 rounded-2xl flex items-center justify-center font-display font-bold text-2xl shrink-0"
+             style="background:var(--accent-soft); color:var(--accent-dark)">
+          ${(office.office_name||'م').charAt(0)}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold mb-1" style="color:var(--accent)">صفحة مكتب على دِلالة</p>
+          <h1 class="font-display text-2xl sm:text-3xl font-bold">${office.office_name||'مكتب عقاري'}</h1>
+          <p class="text-sm mt-2" style="color:var(--text-muted)">${total} إعلان نشط</p>
+          <p class="text-xs mt-2" dir="ltr" style="color:var(--text-muted)">${publicOfficeUrl(office.slug)}</p>
+        </div>
+        <button onclick="sharePublicOffice('${office.slug}',${JSON.stringify(office.office_name||'مكتب عقاري')})"
+                class="btn-primary shrink-0">مشاركة الصفحة</button>
+      </div>
+    </section>
+
+    ${myProperties.length ? `<section class="mb-10">
+      ${sectionHeader('عقارات المكتب', myProperties.length+' إعلان')}
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+        ${myProperties.map((p,i)=>propertyCard(p,i)).join('')}
+      </div>
+    </section>` : ''}
+
+    ${myVehicles.length ? `<section class="mb-10">
+      ${sectionHeader('سيارات المكتب', myVehicles.length+' إعلان')}
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+        ${myVehicles.map((v,i)=>vehicleCard(v,i)).join('')}
+      </div>
+    </section>` : ''}
+
+    ${!total ? emptyState('لا توجد إعلانات منشورة حالياً','ستظهر إعلانات المكتب هنا فور نشرها.') : ''}
+  </div>`;
+}
+
+async function saveMyOfficeSlug(e){
+  e.preventDefault();
+  if(!isOfficeAccount()) return false;
+  const fd = new FormData(e.target);
+  const slug = String(fd.get('slug')||'').trim().toLowerCase();
+  const {data,error} = await supabaseClient.rpc('set_my_office_slug',{p_slug:slug});
+  if(error){
+    const msg = String(error.message||'');
+    if(msg.includes('slug_taken')) toast('هذا الرابط مستخدم من مكتب آخر');
+    else if(msg.includes('reserved_slug')) toast('هذا الرابط محجوز، اختر اسماً آخر');
+    else if(msg.includes('invalid_slug')) toast('استخدم أحرف إنجليزية صغيرة وأرقام وشرطة - فقط');
+    else toast('تعذر حفظ رابط المكتب');
+    return false;
+  }
+  currentProfile.slug = data;
+  publicOfficeCache[String(data).toLowerCase()] = {
+    id:currentUser.id,
+    office_name:currentProfile.office_name,
+    slug:data
+  };
+  toast('تم حفظ رابط صفحة المكتب');
+  render();
+  return false;
+}
 
 /* ===================== OFFICES ===================== */
 function viewOffices(params){
@@ -1792,7 +1917,39 @@ function viewFavorites(embedded){
 function viewAccount(){
   if(currentUser){
     const office = isOfficeAccount();
-    return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8"><div class="surface rounded-2xl p-6"><div class="flex items-start justify-between gap-3 mb-4"><div><h1 class="font-display text-2xl font-bold mb-1">${office?'حساب مكتب عقاري':'حساب عميل'}</h1><p class="text-sm" style="color:var(--text-muted)">مسجل الدخول باسم <b>${currentUser.email||'مستخدم دِلالة'}</b></p>${office && currentProfile?.office_name ? `<p class="text-sm mt-1 font-bold">${currentProfile.office_name}</p>` : ''}</div><span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">${office?'مكتب عقاري':'عميل'}</span></div><div class="flex flex-wrap gap-2">${office?`<a href="#/add" class="btn-primary">إضافة إعلان</a><a href="#/dashboard" class="btn-ghost">لوحة المكتب</a>`:`<a href="#/favorites" class="btn-primary">المفضلة</a><a href="#/properties" class="btn-ghost">تصفح العقارات</a>`}<button onclick="doLogout()" class="btn-ghost">تسجيل الخروج</button></div></div></div>`;
+    return `<div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+      <div class="surface rounded-2xl p-6">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h1 class="font-display text-2xl font-bold mb-1">${office?'حساب مكتب عقاري':'حساب عميل'}</h1>
+            <p class="text-sm" style="color:var(--text-muted)">مسجل الدخول باسم <b>${currentUser.email||'مستخدم دِلالة'}</b></p>
+            ${office && currentProfile?.office_name ? `<p class="text-sm mt-1 font-bold">${currentProfile.office_name}</p>` : ''}
+          </div>
+          <span class="text-xs font-bold px-3 py-1.5 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">${office?'مكتب عقاري':'عميل'}</span>
+        </div>
+
+        ${office ? `<div class="rounded-2xl p-4 mb-5" style="background:var(--surface-2)">
+          <h3 class="font-bold mb-1">رابط صفحة مكتبك</h3>
+          <p class="text-xs mb-3" style="color:var(--text-muted)">اختر اسماً إنجليزياً قصيراً ليصبح رابطاً خاصاً بمكتبك.</p>
+          <form onsubmit="return saveMyOfficeSlug(event)" class="flex flex-col sm:flex-row gap-2">
+            <div class="flex-1">
+              <input name="slug" required minlength="3" maxlength="40" pattern="[a-z0-9][a-z0-9-]{1,38}[a-z0-9]"
+                     value="${currentProfile?.slug||''}" class="field-input" dir="ltr" placeholder="alrowaa">
+            </div>
+            <button class="btn-primary shrink-0">حفظ الرابط</button>
+          </form>
+          ${currentProfile?.slug ? `<div class="flex flex-wrap items-center gap-2 mt-3">
+            <a href="/${currentProfile.slug}" class="text-sm font-bold underline" style="color:var(--accent)" target="_blank">${location.origin}/${currentProfile.slug}</a>
+            <button onclick="sharePublicOffice('${currentProfile.slug}',${JSON.stringify(currentProfile.office_name||'مكتب عقاري')})" class="chip rounded-full px-3 py-1.5 text-xs font-bold">مشاركة</button>
+          </div>` : ''}
+        </div>` : ''}
+
+        <div class="flex flex-wrap gap-2">
+          ${office?`<a href="#/add" class="btn-primary">إضافة إعلان</a><a href="#/dashboard" class="btn-ghost">لوحة المكتب</a>`:`<a href="#/favorites" class="btn-primary">المفضلة</a><a href="#/properties" class="btn-ghost">تصفح العقارات</a>`}
+          <button onclick="doLogout()" class="btn-ghost">تسجيل الخروج</button>
+        </div>
+      </div>
+    </div>`;
   }
   return `<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8"><h1 class="font-display text-2xl font-bold mb-1">حسابي</h1><p class="text-sm mb-8" style="color:var(--text-muted)">سجّل الدخول، أو أنشئ حساب عميل للتصفح والمفضلة، أو حساب مكتب لنشر وإدارة الإعلانات.</p><div class="grid lg:grid-cols-2 gap-5"><div class="surface rounded-2xl p-6"><h3 class="font-bold mb-3">تسجيل الدخول</h3><form onsubmit="return doLogin(event)" class="space-y-3"><input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني"><input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور"><button class="btn-primary w-full">دخول</button></form></div><div class="surface rounded-2xl p-6"><h3 class="font-bold mb-2">إنشاء حساب جديد</h3><p class="text-xs mb-4" style="color:var(--text-muted)">اختر نوع الحساب الصحيح. حساب العميل لا يمكنه نشر الإعلانات.</p><form onsubmit="return doSignUp(event)" class="space-y-3"><div><label class="field-label">نوع الحساب</label><select required name="account_type" class="field-input" onchange="toggleOfficeNameField(this.value)"><option value="client">عميل</option><option value="office">صاحب مكتب عقاري</option></select></div><div id="officeNameField" class="hidden"><label class="field-label">اسم المكتب</label><input type="text" name="office_name" class="field-input" placeholder="مثال: مكتب الواجهة العقارية"></div><input required type="email" name="email" class="field-input" placeholder="البريد الإلكتروني"><input required minlength="6" type="password" name="password" class="field-input" placeholder="كلمة المرور (6 أحرف على الأقل)"><button class="btn-primary w-full">إنشاء الحساب</button></form></div></div></div>`;
 }
