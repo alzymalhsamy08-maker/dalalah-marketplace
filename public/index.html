@@ -469,16 +469,25 @@ async function initBackend(){
   try{
     const {data:{session}} = await supabaseClient.auth.getSession();
     currentUser = session?.user || null;
-    await loadCurrentProfile();
-    await loadRemoteListings();
-    await loadPropertyFeatureData();
+
+    await Promise.all([
+      loadCurrentProfile(),
+      loadRemoteListings(),
+      loadPropertyFeatureData()
+    ]);
+
     updateRoleUI();
-    supabaseClient.auth.onAuthStateChange((_event, session)=>{
+
+    supabaseClient.auth.onAuthStateChange((event, session)=>{
+      if(event === 'INITIAL_SESSION') return;
+
       currentUser = session?.user || null;
       setTimeout(async()=>{
-        await loadCurrentProfile();
-        await loadRemoteListings();
-        await loadPropertyFeatureData();
+        await Promise.all([
+          loadCurrentProfile(),
+          loadRemoteListings(),
+          loadPropertyFeatureData()
+        ]);
         render();
         updateRoleUI();
       },0);
