@@ -92,6 +92,19 @@ input[type=range]{accent-color:var(--accent);}
 .btn-charcoal{background:var(--charcoal); color:#F3EFE3; border-radius:.8rem; padding:.75rem 1.4rem; font-weight:700; border:1px solid var(--charcoal);}
 .btn-charcoal:hover{background:var(--charcoal-2);}
 #app{min-height:60vh;}
+#imageViewerDialog{
+  width:100vw; height:100dvh; max-width:none; max-height:none;
+  margin:0; padding:0; border:0; background:#0d0d0c; color:#fff;
+}
+#imageViewerDialog::backdrop{background:#0d0d0c;}
+.viewer-main{height:calc(100dvh - 92px); min-height:0;}
+.viewer-image{max-width:100%; max-height:100%; object-fit:contain; user-select:none; -webkit-user-drag:none;}
+.viewer-thumb{width:62px;height:62px;border-radius:.65rem;overflow:hidden;opacity:.58;border:2px solid transparent;flex:0 0 auto;}
+.viewer-thumb[data-active="true"]{opacity:1;border-color:#8FAE5D;}
+@media (max-width:640px){
+  .viewer-main{height:calc(100dvh - 82px);}
+  .viewer-thumb{width:52px;height:52px;}
+}
 .mask-fade-b{-webkit-mask-image:linear-gradient(to bottom, black 70%, transparent 100%); mask-image:linear-gradient(to bottom, black 70%, transparent 100%);}
 </style>
 </head>
@@ -203,6 +216,22 @@ input[type=range]{accent-color:var(--accent);}
       <a id="shareWhatsapp" target="_blank" class="btn-ghost flex items-center gap-2 justify-center">مشاركة عبر واتساب</a>
       <button onclick="copyShareLink()" class="btn-ghost">نسخ الرابط</button>
     </div>
+  </div>
+</dialog>
+
+<dialog id="imageViewerDialog" aria-label="عارض الصور">
+  <div class="h-full flex flex-col" ontouchstart="viewerTouchStart(event)" ontouchend="viewerTouchEnd(event)">
+    <div class="h-14 shrink-0 px-3 sm:px-5 flex items-center justify-between border-b border-white/10">
+      <button type="button" onclick="closeImageViewer()" class="w-10 h-10 rounded-full flex items-center justify-center text-xl hover:bg-white/10" aria-label="إغلاق">✕</button>
+      <span id="imageViewerCounter" class="text-sm font-bold text-white/80"></span>
+      <span class="w-10"></span>
+    </div>
+    <div class="viewer-main relative flex-1 flex items-center justify-center overflow-hidden px-2 sm:px-12">
+      <button id="imageViewerPrev" type="button" onclick="viewerPrev()" class="absolute right-2 sm:right-5 z-10 w-11 h-11 rounded-full bg-black/45 border border-white/20 flex items-center justify-center text-2xl" aria-label="الصورة السابقة">›</button>
+      <img id="imageViewerImage" class="viewer-image" alt="صورة الإعلان" draggable="false">
+      <button id="imageViewerNext" type="button" onclick="viewerNext()" class="absolute left-2 sm:left-5 z-10 w-11 h-11 rounded-full bg-black/45 border border-white/20 flex items-center justify-center text-2xl" aria-label="الصورة التالية">‹</button>
+    </div>
+    <div id="imageViewerThumbs" class="h-[78px] sm:h-[88px] shrink-0 flex items-center gap-2 overflow-x-auto px-3 sm:px-5 border-t border-white/10 scrollbar-none"></div>
   </div>
 </dialog>
 
@@ -969,16 +998,14 @@ function viewPropertyDetails(id){
       <a href="#/properties" class="hover:underline">العقارات</a><span>/</span><a href="#/properties?city=${encodeURIComponent(p.city)}" class="hover:underline">${p.city}</a><span>/</span><span>${p.title}</span>
     </div>
 
-    <div class="grid md:grid-cols-4 gap-2 rounded-2xl overflow-hidden mb-6" style="height: 420px;">
-      <button onclick="openGallery('${p.id}')" class="md:col-span-2 md:row-span-2 relative">${listingImage(p,0,p.type,true,0)}
-        <span class="absolute bottom-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(16,15,12,.6); color:#fff;">عرض المعرض بالكامل</span>
+    <div class="grid md:grid-cols-4 gap-2 rounded-2xl overflow-hidden mb-6 h-[270px] sm:h-[340px] md:h-[420px]">
+      <button onclick="openImageViewer('${p.id}','property',0)" class="md:col-span-2 md:row-span-2 relative min-h-0">${listingImage(p,0,p.type,true,0)}
+        <span class="absolute bottom-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(16,15,12,.6); color:#fff;">عرض الصور</span>
       </button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,1,p.type,true,1)}</button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,2,p.type,true,2)}</button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,3,p.type,true,3)}
-        <span class="absolute inset-0 flex items-center justify-center text-white font-bold text-sm" style="background:rgba(16,15,12,.45)">فيديو + صور إضافية</span>
-      </button>
-      <button onclick="openGallery('${p.id}')" class="relative hidden md:block">${listingImage(p,4,p.type,true,4)}</button>
+      <button onclick="openImageViewer('${p.id}','property',1)" class="relative hidden md:block">${listingImage(p,1,p.type,true,1)}</button>
+      <button onclick="openImageViewer('${p.id}','property',2)" class="relative hidden md:block">${listingImage(p,2,p.type,true,2)}</button>
+      <button onclick="openImageViewer('${p.id}','property',3)" class="relative hidden md:block">${listingImage(p,3,p.type,true,3)}</button>
+      <button onclick="openImageViewer('${p.id}','property',4)" class="relative hidden md:block">${listingImage(p,4,p.type,true,4)}</button>
     </div>
 
     <div class="grid lg:grid-cols-[1fr_360px] gap-8">
@@ -1041,18 +1068,97 @@ function viewPropertyDetails(id){
 
     ${similar.length? `<div class="mt-14">${sectionHeader('عقارات مشابهة')}<div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">${similar.map((s,i)=>propertyCard(s,i)).join('')}</div></div>`:''}
   </div>
-  <dialog id="galleryDialog" class="rounded-2xl p-0 w-[94%] max-w-3xl" style="background:var(--surface); border:1px solid var(--border);">
-    <div class="p-3 flex justify-between items-center border-b" style="border-color:var(--border)">
-      <p class="font-bold text-sm px-2">معرض الصور</p>
-      <button onclick="galleryDialog.close()" class="w-8 h-8 rounded-full hover:bg-black/5">✕</button>
-    </div>
-    <div class="grid grid-cols-2 gap-2 p-3">
-      ${[0,1,2,3,4].map(i=>`<div class="aspect-[4/3] rounded-xl overflow-hidden">${listingImage(p,i,p.type,true,i)}</div>`).join('')}
-    </div>
-  </dialog>
   `;
 }
-function openGallery(){ galleryDialog.showModal(); }
+
+/* ===================== IMAGE VIEWER ===================== */
+let imageViewerImages = [];
+let imageViewerIndex = 0;
+let imageViewerTouchX = null;
+
+function listingViewerImages(item){
+  return Array.isArray(item?.mediaUrls) ? item.mediaUrls.filter(Boolean) : [];
+}
+function safeViewerUrl(url){
+  return String(url||'').replace(/"/g,'&quot;');
+}
+function openImageViewer(id, kind, index){
+  const item = kind==='vehicle'
+    ? vehicles().find(x=>x.id===id)
+    : properties().find(x=>x.id===id);
+
+  const images = listingViewerImages(item);
+  if(!images.length){
+    toast('لا توجد صور مرفوعة لهذا الإعلان');
+    return;
+  }
+
+  imageViewerImages = images;
+  imageViewerIndex = Math.max(0, Math.min(Number(index)||0, images.length-1));
+  renderImageViewer();
+
+  const dialog = document.getElementById('imageViewerDialog');
+  if(!dialog) return;
+  if(typeof dialog.showModal === 'function'){
+    if(!dialog.open) dialog.showModal();
+  }else{
+    dialog.setAttribute('open','');
+  }
+  document.body.style.overflow = 'hidden';
+}
+function closeImageViewer(){
+  const dialog = document.getElementById('imageViewerDialog');
+  if(dialog?.open && typeof dialog.close === 'function') dialog.close();
+  else dialog?.removeAttribute('open');
+  document.body.style.overflow = '';
+}
+function renderImageViewer(){
+  const img = document.getElementById('imageViewerImage');
+  const counter = document.getElementById('imageViewerCounter');
+  const thumbs = document.getElementById('imageViewerThumbs');
+  const prev = document.getElementById('imageViewerPrev');
+  const next = document.getElementById('imageViewerNext');
+  if(!img || !counter || !thumbs) return;
+
+  img.src = imageViewerImages[imageViewerIndex] || '';
+  counter.textContent = imageViewerImages.length ? `${imageViewerIndex+1} / ${imageViewerImages.length}` : '';
+
+  const multi = imageViewerImages.length > 1;
+  if(prev) prev.style.display = multi ? 'flex' : 'none';
+  if(next) next.style.display = multi ? 'flex' : 'none';
+
+  thumbs.innerHTML = imageViewerImages.map((url,i)=>`
+    <button type="button" onclick="viewerGo(${i})" class="viewer-thumb" data-active="${i===imageViewerIndex}">
+      <img src="${safeViewerUrl(url)}" alt="" class="w-full h-full object-cover" draggable="false">
+    </button>
+  `).join('');
+
+  const activeThumb = thumbs.querySelector('[data-active="true"]');
+  activeThumb?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+function viewerGo(index){
+  if(!imageViewerImages.length) return;
+  imageViewerIndex = (index + imageViewerImages.length) % imageViewerImages.length;
+  renderImageViewer();
+}
+function viewerPrev(){ viewerGo(imageViewerIndex-1); }
+function viewerNext(){ viewerGo(imageViewerIndex+1); }
+function viewerTouchStart(e){ imageViewerTouchX = e.changedTouches?.[0]?.clientX ?? null; }
+function viewerTouchEnd(e){
+  if(imageViewerTouchX===null) return;
+  const endX = e.changedTouches?.[0]?.clientX ?? imageViewerTouchX;
+  const diff = endX - imageViewerTouchX;
+  imageViewerTouchX = null;
+  if(Math.abs(diff) < 45) return;
+  if(diff > 0) viewerPrev(); else viewerNext();
+}
+window.addEventListener('keydown',e=>{
+  const dialog = document.getElementById('imageViewerDialog');
+  if(!dialog?.open) return;
+  if(e.key==='Escape') closeImageViewer();
+  if(e.key==='ArrowLeft') viewerNext();
+  if(e.key==='ArrowRight') viewerPrev();
+});
 
 /* ===================== PUBLIC OFFICE PAGE ===================== */
 const publicOfficeCache = {};
@@ -1404,11 +1510,13 @@ function viewVehicleDetails(id){
   const office = officeById(v.office);
   const specRows = [['سنة الصنع',v.year],['الممشى',fmtNum(v.mileage)+' كم'],['نوع الوقود',v.fuel],['ناقل الحركة',v.trans],['الحالة',v.condition]];
   return `<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-    <div class="grid md:grid-cols-3 gap-2 rounded-2xl overflow-hidden mb-6" style="height:360px">
-      <div class="md:col-span-2">${listingImage(v,0,'سيارة',true,0)}</div>
+    <div class="grid md:grid-cols-3 gap-2 rounded-2xl overflow-hidden mb-6 h-[270px] sm:h-[340px] md:h-[360px]">
+      <button onclick="openImageViewer('${v.id}','vehicle',0)" class="md:col-span-2 relative min-h-0">${listingImage(v,0,'سيارة',true,0)}
+        <span class="absolute bottom-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(16,15,12,.6); color:#fff;">عرض الصور</span>
+      </button>
       <div class="grid grid-rows-2 gap-2 hidden md:grid">
-        <div>${listingImage(v,1,'سيارة',true,1)}</div>
-        <div>${listingImage(v,2,'سيارة',true,2)}</div>
+        <button onclick="openImageViewer('${v.id}','vehicle',1)" class="min-h-0">${listingImage(v,1,'سيارة',true,1)}</button>
+        <button onclick="openImageViewer('${v.id}','vehicle',2)" class="min-h-0">${listingImage(v,2,'سيارة',true,2)}</button>
       </div>
     </div>
     <div class="grid lg:grid-cols-[1fr_360px] gap-8">
