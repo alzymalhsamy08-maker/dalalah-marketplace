@@ -205,20 +205,6 @@ input[type=range]{accent-color:var(--accent);}
   </div>
 </nav>
 
-<dialog id="reportDialog" class="rounded-2xl p-0 w-[92%] max-w-md" style="background:var(--surface); color:var(--text); border:1px solid var(--border);">
-  <div class="p-5">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="font-display font-bold text-lg">الإبلاغ عن الإعلان</h3>
-      <button onclick="reportDialog.close()" class="w-8 h-8 rounded-full hover:bg-black/5 flex items-center justify-center">✕</button>
-    </div>
-    <p class="text-sm mb-3" style="color:var(--text-muted)">اختر سبب الإبلاغ عن هذا الإعلان:</p>
-    <div class="space-y-2 mb-4" id="reportReasons">
-      ${''}
-    </div>
-    <button onclick="submitReport()" class="btn-primary w-full">إرسال البلاغ</button>
-  </div>
-</dialog>
-
 <dialog id="shareDialog" class="rounded-2xl p-0 w-[92%] max-w-md" style="background:var(--surface); color:var(--text); border:1px solid var(--border);">
   <div class="p-5">
     <div class="flex items-center justify-between mb-3">
@@ -1067,7 +1053,6 @@ function viewPropertyDetails(id){
         </div>
 
         <p class="text-xs mt-6" style="color:var(--text-muted)">رقم مرجع الإعلان: ${p.ref}</p>
-        <button onclick="openReport('${p.id}')" class="text-xs font-bold mt-2 underline" style="color:var(--danger)">الإبلاغ عن الإعلان</button>
       </div>
 
       <aside class="space-y-4 h-fit lg:sticky lg:top-24">
@@ -1549,7 +1534,6 @@ function viewVehicleDetails(id){
         </div>
         <div class="mt-8"><h3 class="font-bold text-lg mb-2">الوصف</h3><p class="text-sm leading-7" style="color:var(--text-muted)">${v.desc}</p></div>
         <p class="text-xs mt-6" style="color:var(--text-muted)">رقم مرجع الإعلان: ${v.ref}</p>
-        <button onclick="openReport('${v.id}')" class="text-xs font-bold mt-2 underline" style="color:var(--danger)">الإبلاغ عن الإعلان</button>
       </div>
       <aside class="space-y-4 h-fit">
         <div class="surface rounded-2xl p-5">
@@ -2418,22 +2402,6 @@ function adminFeatured(){
 }
 
 /* ===================== REPORT / SHARE ===================== */
-let reportTargetId = null;
-function openReport(id){
-  reportTargetId = id;
-  document.getElementById('reportReasons').innerHTML = REPORT_REASONS.map((r,i)=>`
-    <label class="flex items-center gap-2 text-sm p-2.5 rounded-lg" style="border:1px solid var(--border)">
-      <input type="radio" name="reportReason" value="${r}" ${i===0?'checked':''}> ${r}
-    </label>`).join('');
-  reportDialog.showModal();
-}
-function submitReport(){
-  const sel = document.querySelector('input[name="reportReason"]:checked');
-  reports.push({id:reportTargetId, reason: sel? sel.value: REPORT_REASONS[0]});
-  LS.set('dalalah_reports', reports);
-  reportDialog.close();
-  toast('تم استلام بلاغك، شكراً لك');
-}
 let shareTarget = null;
 function openShare(id, kind){
   shareTarget = {id, kind};
