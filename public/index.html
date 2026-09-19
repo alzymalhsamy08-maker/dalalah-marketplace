@@ -1767,7 +1767,8 @@ function viewDashboard(params){
     return `<div class="max-w-xl mx-auto px-4 py-16 text-center"><div class="surface rounded-2xl p-8"><h1 class="font-display text-2xl font-bold mb-2">حساب عميل</h1><p class="text-sm mb-5" style="color:var(--text-muted)">هذا الحساب مخصص للتصفح والمفضلة والتواصل. لوحة الإعلانات خاصة بالمكاتب العقارية.</p><a href="#/favorites" class="btn-primary inline-block">عرض المفضلة</a></div></div>`;
   }
 
-  const tab = params.get('tab')||'home';
+  const requestedTab = params.get('tab')||'home';
+  const tab = ['home','listings','add','favorites'].includes(requestedTab) ? requestedTab : 'home';
   const myProps = remoteProperties.filter(p=>p.ownerId===currentUser.id);
   const myVehicles = remoteVehicles.filter(v=>v.ownerId===currentUser.id);
   const all = [...myProps, ...myVehicles];
@@ -1777,8 +1778,7 @@ function viewDashboard(params){
     ['home','الرئيسية'],
     ['listings','إعلاناتي'],
     ['add','إضافة إعلان'],
-    ['favorites','المفضلة'],
-    ['settings','الإعدادات']
+    ['favorites','المفضلة']
   ];
 
   return `<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -1803,7 +1803,7 @@ function viewDashboard(params){
           ? `<div class="surface rounded-2xl p-8 text-center"><p class="mb-4 font-bold">أضف إعلاناً جديداً</p><a href="#/add" class="btn-primary inline-block">فتح نموذج الإضافة</a></div>`
           : tab==='favorites'
           ? dashFavorites()
-          : dashSettings()}
+          : dashHome(active, all)}
       </div>
     </div>
   </div>`;
@@ -1941,15 +1941,6 @@ function dashOfficeInfo(o){
     <button onclick="toast('تم حفظ بيانات المكتب')" class="btn-primary">حفظ التغييرات</button>
   </div>`;
 }
-function dashSettings(){
-  return `<div class="surface rounded-2xl p-6 max-w-lg space-y-4">
-    <div class="flex items-center justify-between"><p class="font-bold text-sm">إشعارات البريد الإلكتروني</p><input type="checkbox" checked class="w-5 h-5"></div>
-    <div class="flex items-center justify-between"><p class="font-bold text-sm">إشعارات واتساب</p><input type="checkbox" checked class="w-5 h-5"></div>
-    <div class="flex items-center justify-between"><p class="font-bold text-sm">إظهار رقم الجوال للعامة</p><input type="checkbox" class="w-5 h-5"></div>
-    <button onclick="toast('تم حفظ الإعدادات')" class="btn-primary">حفظ</button>
-  </div>`;
-}
-
 /* ===================== FAVORITES / ACCOUNT ===================== */
 function viewFavorites(embedded){
   const favProps = properties().filter(p=>favorites.has(p.id));
