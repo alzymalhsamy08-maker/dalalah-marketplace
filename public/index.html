@@ -53,10 +53,12 @@ tailwind.config = {
 }
 *{box-sizing:border-box}
 html,body{background:var(--bg); color:var(--text);}
-body{font-family:'Tajawal', sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+html{-webkit-text-size-adjust:100%; text-size-adjust:100%;}
+body{font-family:'Tajawal', sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; overscroll-behavior-y:contain;}
 .font-display{font-family:'El Messiri','Tajawal',sans-serif;}
 ::selection{background:var(--accent-soft); color:var(--accent-dark);}
 a{-webkit-tap-highlight-color:transparent;}
+a,button{touch-action:manipulation;}
 button{font-family:inherit; cursor:pointer;}
 input,select,textarea{font-family:inherit; background:var(--surface); color:var(--text); border-color:var(--border);}
 input::placeholder,textarea::placeholder{color:var(--text-muted);}
@@ -67,8 +69,8 @@ input::placeholder,textarea::placeholder{color:var(--text-muted);}
 @keyframes fadeUp{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
 .animate-in{animation:fadeUp .45s ease both;}
 @media (prefers-reduced-motion: reduce){ .animate-in{animation:none;} * {transition:none !important;} }
-.tap{transition:transform .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;}
-.tap:active{transform:scale(.97);}
+.tap{transition:transform .12s ease, background-color .12s ease, border-color .12s ease, box-shadow .12s ease;}
+.tap:active{transform:scale(.985);}
 .hover-lift{transition:transform .25s ease, box-shadow .25s ease;}
 @media (hover:hover){ .hover-lift:hover{transform:translateY(-3px); box-shadow:0 16px 34px -18px rgba(36,35,31,.35);} }
 .chip{border:1px solid var(--border); color:var(--text-muted); background:var(--surface);}
@@ -91,7 +93,17 @@ input[type=range]{accent-color:var(--accent);}
 .btn-ghost:hover{background:var(--surface-2);}
 .btn-charcoal{background:var(--charcoal); color:#F3EFE3; border-radius:.8rem; padding:.75rem 1.4rem; font-weight:700; border:1px solid var(--charcoal);}
 .btn-charcoal:hover{background:var(--charcoal-2);}
+.btn-primary,.btn-ghost,.btn-charcoal{min-height:44px;}
 #app{min-height:60vh;}
+@media (max-width:767px){
+  body{padding-bottom:env(safe-area-inset-bottom);}
+  #app{padding-bottom:calc(6.5rem + env(safe-area-inset-bottom));}
+  .field-input{font-size:16px; min-height:44px;}
+  .card-shadow{box-shadow:0 1px 2px rgba(36,35,31,.04),0 5px 16px -12px rgba(36,35,31,.16);}
+  .animate-in{animation-duration:.24s;}
+  footer{padding-bottom:calc(4.5rem + env(safe-area-inset-bottom));}
+  nav.fixed.bottom-0{padding-bottom:env(safe-area-inset-bottom);}
+}
 #imageViewerDialog{
   width:100vw; height:100dvh; max-width:none; max-height:none;
   margin:0; padding:0; border:0; background:#0d0d0c; color:#fff;
@@ -998,7 +1010,7 @@ function viewPropertyDetails(id){
       <a href="#/properties" class="hover:underline">العقارات</a><span>/</span><a href="#/properties?city=${encodeURIComponent(p.city)}" class="hover:underline">${p.city}</a><span>/</span><span>${p.title}</span>
     </div>
 
-    <div class="grid md:grid-cols-4 gap-2 rounded-2xl overflow-hidden mb-6 h-[270px] sm:h-[340px] md:h-[420px]">
+    <div class="grid md:grid-cols-4 gap-2 rounded-2xl overflow-hidden mb-6 h-[240px] min-[430px]:h-[290px] sm:h-[340px] md:h-[420px]">
       <button onclick="openImageViewer('${p.id}','property',0)" class="md:col-span-2 md:row-span-2 relative min-h-0">${listingImage(p,0,p.type,true,0)}
         <span class="absolute bottom-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(16,15,12,.6); color:#fff;">عرض الصور</span>
       </button>
@@ -1010,8 +1022,8 @@ function viewPropertyDetails(id){
 
     <div class="grid lg:grid-cols-[1fr_360px] gap-8">
       <div>
-        <div class="flex items-start justify-between gap-3">
-          <div>
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div class="min-w-0">
             <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background:var(--accent-soft); color:var(--accent-dark)">${p.tx}</span>
             <h1 class="font-display text-2xl sm:text-3xl font-bold mt-3">${p.title}</h1>
             <p class="text-sm mt-1" style="color:var(--text-muted)">${p.city} - ${p.hood}</p>
@@ -1510,7 +1522,7 @@ function viewVehicleDetails(id){
   const office = officeById(v.office);
   const specRows = [['سنة الصنع',v.year],['الممشى',fmtNum(v.mileage)+' كم'],['نوع الوقود',v.fuel],['ناقل الحركة',v.trans],['الحالة',v.condition]];
   return `<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-    <div class="grid md:grid-cols-3 gap-2 rounded-2xl overflow-hidden mb-6 h-[270px] sm:h-[340px] md:h-[360px]">
+    <div class="grid md:grid-cols-3 gap-2 rounded-2xl overflow-hidden mb-6 h-[240px] min-[430px]:h-[290px] sm:h-[340px] md:h-[360px]">
       <button onclick="openImageViewer('${v.id}','vehicle',0)" class="md:col-span-2 relative min-h-0">${listingImage(v,0,'سيارة',true,0)}
         <span class="absolute bottom-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full" style="background:rgba(16,15,12,.6); color:#fff;">عرض الصور</span>
       </button>
@@ -1599,7 +1611,7 @@ function wizardStep(){
       ${wizardNav(true, !!w.ptype)}`;
     } else {
       return `<h2 class="font-bold text-lg mb-4">بيانات السيارة الأساسية</h2>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div><label class="field-label">الشركة المصنعة</label><input class="field-input" value="${w.brand}" oninput="wInput('brand',this.value)" placeholder="تويوتا"></div>
         <div><label class="field-label">الموديل</label><input class="field-input" value="${w.model}" oninput="wInput('model',this.value)" placeholder="كامري"></div>
         <div><label class="field-label">سنة الصنع</label><input type="number" class="field-input" value="${w.year}" oninput="wInput('year',this.value)" placeholder="2023"></div>
@@ -1614,11 +1626,11 @@ function wizardStep(){
     return `<h2 class="font-bold text-lg mb-4">المعلومات الأساسية</h2>
     <div class="space-y-3">
       <div><label class="field-label">عنوان الإعلان</label><input class="field-input" value="${w.title}" oninput="wInput('title',this.value)" placeholder="مثال: فيلا للبيع في حي النرجس"></div>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div><label class="field-label">السعر (ر.س)</label><input type="number" class="field-input" value="${w.price}" oninput="wInput('price',this.value)"></div>
         ${w.kind==='property'? `<div><label class="field-label">المساحة (م²)</label><input type="number" class="field-input" value="${w.area}" oninput="wInput('area',this.value)"></div>` : `<div><label class="field-label">حالة السيارة</label><select class="field-input" onchange="wSet('condition',this.value)"><option value="">اختر</option><option ${w.condition==='جديدة'?'selected':''}>جديدة</option><option ${w.condition==='مستعمل بحالة ممتازة'?'selected':''}>مستعمل بحالة ممتازة</option><option ${w.condition==='مستعمل بحالة جيدة'?'selected':''}>مستعمل بحالة جيدة</option></select></div>`}
       </div>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div><label class="field-label">المدينة</label><select class="field-input" onchange="wSet('city',this.value)"><option value="">اختر</option>${CITIES.map(c=>`<option ${w.city===c?'selected':''}>${c}</option>`).join('')}</select></div>
         ${w.kind==='property'? `<div><label class="field-label">الحي</label><input class="field-input" value="${w.hood}" oninput="wInput('hood',this.value)"></div>` : ''}
       </div>
@@ -1630,7 +1642,7 @@ function wizardStep(){
   if(w.step===4){
     if(w.kind==='property'){
       return `<h2 class="font-bold text-lg mb-4">مواصفات العقار</h2>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div><label class="field-label">عدد الغرف</label><input type="number" class="field-input" value="${w.rooms}" oninput="wInput('rooms',this.value)"></div>
         <div><label class="field-label">دورات المياه</label><input type="number" class="field-input" value="${w.baths}" oninput="wInput('baths',this.value)"></div>
         <div><label class="field-label">الصالات</label><input type="number" class="field-input" value="${w.living}" oninput="wInput('living',this.value)"></div>
@@ -1809,7 +1821,7 @@ function contactStepBody(){
   return `<h2 class="font-bold text-lg mb-4">معلومات التواصل</h2>
   <div class="space-y-3">
     <div><label class="field-label">اسم المعلن / المكتب</label><input class="field-input" value="${w.contactName}" oninput="wInput('contactName',this.value)" placeholder="اسمك أو اسم المكتب"></div>
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div><label class="field-label">رقم الجوال</label><input class="field-input" value="${w.phone}" oninput="wInput('phone',this.value)" placeholder="05xxxxxxxx"></div>
       <div><label class="field-label">رقم واتساب</label><input class="field-input" value="${w.whatsapp}" oninput="wInput('whatsapp',this.value)" placeholder="05xxxxxxxx"></div>
     </div>
@@ -2170,7 +2182,7 @@ function dashOfficeInfo(o){
     <div><label class="field-label">اسم المكتب</label><input class="field-input" value="${o.name}"></div>
     <div><label class="field-label">المدينة</label><input class="field-input" value="${o.city}"></div>
     <div><label class="field-label">العنوان</label><input class="field-input" value="${o.address}"></div>
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div><label class="field-label">الجوال</label><input class="field-input" value="${o.phone}"></div>
       <div><label class="field-label">واتساب</label><input class="field-input" value="${o.whatsapp}"></div>
     </div>
