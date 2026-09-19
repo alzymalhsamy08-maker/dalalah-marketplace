@@ -343,6 +343,8 @@ let currentUser = null;
 let currentProfile = null;
 let remoteProperties = [];
 let remoteVehicles = [];
+let propertyFeatures = [];
+let listingPropertyFeatureNames = {};
 
 function dbListingToUi(r){
   const common = {
@@ -377,6 +379,39 @@ async function loadRemoteListings(){
   remoteProperties = mapped.filter(x=>!x.brand);
   remoteVehicles = mapped.filter(x=>!!x.brand);
 }
+async function loadPropertyFeatureData(){
+  const [{data:features,error:featuresError},{data:links,error:linksError}] = await Promise.all([
+    supabaseClient.from('property_features').select('id,owner_id,name,is_system,created_at').order('name',{ascending:true}),
+    supabaseClient.from('listing_property_features').select('listing_id,feature_id,property_features(id,name)')
+  ]);
+
+  if(featuresError){
+    console.error('Supabase property features:',featuresError);
+  }else{
+    propertyFeatures = features || [];
+  }
+
+  if(linksError){
+    console.error('Supabase listing property features:',linksError);
+  }else{
+    const map = {};
+    (links||[]).forEach(row=>{
+      const name = row.property_features?.name;
+      if(!name) return;
+      if(!map[row.listing_id]) map[row.listing_id] = [];
+      map[row.listing_id].push(name);
+    });
+    listingPropertyFeatureNames = map;
+  }
+}
+function availablePropertyFeatures(){
+  return propertyFeatures.filter(f=>f.is_system || (currentUser && f.owner_id===currentUser.id));
+}
+function escapeFeatureText(value){
+  return String(value||'').replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[ch]);
+}
 async function loadCurrentProfile(){
   currentProfile = null;
   if(!currentUser) return;
@@ -406,12 +441,14 @@ async function initBackend(){
     currentUser = session?.user || null;
     await loadCurrentProfile();
     await loadRemoteListings();
+    await loadPropertyFeatureData();
     updateRoleUI();
     supabaseClient.auth.onAuthStateChange((_event, session)=>{
       currentUser = session?.user || null;
       setTimeout(async()=>{
         await loadCurrentProfile();
         await loadRemoteListings();
+        await loadPropertyFeatureData();
         render();
         updateRoleUI();
       },0);
@@ -968,6 +1005,13 @@ function viewPropertyDetails(id){
           <p class="text-sm leading-7" style="color:var(--text-muted)">${p.desc}</p>
         </div>
 
+        ${(listingPropertyFeatureNames[p.id]||[]).length ? `<div class="mt-8">
+          <h3 class="font-bold text-lg mb-3">مميزات العقار</h3>
+          <div class="flex flex-wrap gap-2">
+            ${(listingPropertyFeatureNames[p.id]||[]).map(name=>`<span class="chip rounded-full px-3 py-1.5 text-xs">${escapeFeatureText(name)}</span>`).join('')}
+          </div>
+        </div>` : ''}
+
         <div class="mt-8">
           <h3 class="font-bold text-lg mb-3">موقع العقار</h3>
           ${p.latitude && p.longitude
@@ -1397,7 +1441,7 @@ function viewVehicleDetails(id){
 
 /* ===================== ADD LISTING WIZARD ===================== */
 let wizard = null;
-function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال', latitude:null, longitude:null, mediaFiles:[], mediaPreviews:[]}; }
+function freshWizard(){ return {step:1, kind:'property', tx:'', ptype:'', title:'', price:'', area:'', city:'', hood:'', street:'', desc:'', rooms:'', baths:'', living:'', age:'', swidth:'', facing:'', furnished:'', featureIds:[], brand:'', model:'', year:'', mileage:'', fuel:'', trans:'', condition:'', contactName:'', phone:'', whatsapp:'', prefer:'اتصال', latitude:null, longitude:null, mediaFiles:[], mediaPreviews:[]}; }
 function viewAddListing(){
   if(!currentUser){
     return `<div class="max-w-xl mx-auto px-4 py-16 text-center"><div class="surface rounded-2xl p-8"><h1 class="font-display text-2xl font-bold mb-2">سجّل الدخول أولاً</h1><p class="text-sm mb-5" style="color:var(--text-muted)">إضافة الإعلانات متاحة لحسابات المكاتب العقارية.</p><a href="#/account" class="btn-primary inline-block">تسجيل الدخول</a></div></div>`;
@@ -1489,6 +1533,26 @@ function wizardStep(){
       <div class="mt-3 flex gap-2">
         <button onclick="wSet('furnished','مفروش')" class="chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${w.furnished==='مفروش'}">مفروش</button>
         <button onclick="wSet('furnished','غير مفروش')" class="chip rounded-full px-4 py-2 text-sm font-bold tap" data-active="${w.furnished==='غير مفروش'}">غير مفروش</button>
+      </div>
+
+      <div class="mt-6">
+        <h3 class="font-bold text-sm mb-1">مميزات العقار</h3>
+        <p class="text-xs mb-3" style="color:var(--text-muted)">اختر كل المميزات التي تنطبق على هذا العقار.</p>
+        <div class="flex flex-wrap gap-2">
+          ${availablePropertyFeatures().map(f=>`
+            <button type="button" onclick="toggleWizardFeature('${f.id}')"
+              class="chip rounded-full px-3 py-2 text-xs font-bold tap"
+              data-active="${(w.featureIds||[]).includes(f.id)}">${escapeFeatureText(f.name)}</button>
+          `).join('')}
+        </div>
+
+        <div class="mt-4 rounded-xl p-3" style="background:var(--surface-2)">
+          <label class="field-label">الميزة غير موجودة؟ أضف ميزة خاصة بمكتبك</label>
+          <div class="flex gap-2">
+            <input id="newPropertyFeatureName" maxlength="50" class="field-input" placeholder="مثال: مجلس خارجي">
+            <button type="button" onclick="addCustomPropertyFeature()" class="btn-ghost shrink-0">إضافة</button>
+          </div>
+        </div>
       </div>
       ${wizardNav(true, true)}`;
     } else {
@@ -1671,6 +1735,55 @@ function wizardNav(showBack, canNext){
 }
 function wSet(k,v){ wizard[k]=v; renderWizard(); }
 function wInput(k,v){ wizard[k]=v; }
+function toggleWizardFeature(id){
+  wizard.featureIds = wizard.featureIds || [];
+  if(wizard.featureIds.includes(id)) wizard.featureIds = wizard.featureIds.filter(x=>x!==id);
+  else wizard.featureIds.push(id);
+  renderWizard();
+}
+async function addCustomPropertyFeature(){
+  if(!currentUser || !isOfficeAccount()){
+    toast('إضافة المميزات الخاصة متاحة للمكاتب فقط');
+    return;
+  }
+  const input = document.getElementById('newPropertyFeatureName');
+  const name = String(input?.value||'').trim().replace(/\s+/g,' ');
+  if(name.length < 2){
+    toast('اكتب اسم الميزة');
+    return;
+  }
+  if(name.length > 50){
+    toast('اسم الميزة طويل جداً');
+    return;
+  }
+
+  const existing = availablePropertyFeatures().find(f=>String(f.name).trim().toLowerCase()===name.toLowerCase());
+  if(existing){
+    wizard.featureIds = wizard.featureIds || [];
+    if(!wizard.featureIds.includes(existing.id)) wizard.featureIds.push(existing.id);
+    toast('الميزة موجودة وتم اختيارها');
+    renderWizard();
+    return;
+  }
+
+  const {data,error} = await supabaseClient
+    .from('property_features')
+    .insert({owner_id:currentUser.id,name,is_system:false})
+    .select('id,owner_id,name,is_system,created_at')
+    .single();
+
+  if(error){
+    console.error(error);
+    toast('تعذر إضافة الميزة');
+    return;
+  }
+
+  propertyFeatures.push(data);
+  wizard.featureIds = wizard.featureIds || [];
+  wizard.featureIds.push(data.id);
+  toast('تمت إضافة الميزة واختيارها');
+  renderWizard();
+}
 function renderWizard(){ const el = document.getElementById('wizardBody'); if(el) el.innerHTML = wizardStep(); }
 function wizNext(){ wizard.step++; renderAddPage(); }
 function wizPrev(){ wizard.step--; renderAddPage(); }
@@ -1746,7 +1859,23 @@ async function publishListing(){
     };
     const {data,error} = await supabaseClient.from('listings').insert(payload).select().single();
     if(error) throw error;
+
+    if(w.kind==='property' && Array.isArray(w.featureIds) && w.featureIds.length){
+      const featureRows = [...new Set(w.featureIds)].map(featureId=>({
+        listing_id:data.id,
+        feature_id:featureId
+      }));
+      const {error:featureError} = await supabaseClient
+        .from('listing_property_features')
+        .insert(featureRows);
+      if(featureError){
+        console.error('Listing features:',featureError);
+        toast('تم نشر الإعلان، لكن تعذر حفظ بعض المميزات');
+      }
+    }
+
     await loadRemoteListings();
+    await loadPropertyFeatureData();
     wizard = freshWizard();
     toast('تم نشر إعلانك بنجاح');
     navigate(w.kind==='vehicle'?'/vehicle/'+data.id:'/property/'+data.id,{});
