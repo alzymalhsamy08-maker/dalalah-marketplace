@@ -382,7 +382,7 @@ async function loadCurrentProfile(){
   if(!currentUser) return;
   const {data,error} = await supabaseClient
     .from('profiles')
-    .select('id,account_type,office_name,slug')
+    .select('id,account_type,office_name,slug,office_phone,office_whatsapp')
     .eq('id',currentUser.id)
     .maybeSingle();
   if(error){
@@ -992,8 +992,8 @@ function viewPropertyDetails(id){
           <h3 class="font-bold mb-3">تواصل مع المعلن</h3>
           ${advertiserOfficeBlock(p.ownerId,p.contactName)}
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <a href="tel:${p.phone||office?.phone||''}" class="btn-charcoal text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.7a2 2 0 01-.5 2.1L8 9.7a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.8.5 2.7.6a2 2 0 011.7 2Z"/></svg>اتصال</a>
-            <a href="https://wa.me/${waNumber(p.whatsapp||p.phone||office?.whatsapp||'')}" target="_blank" class="btn-primary text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2Zm5.6 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.1.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 2.4 1.3 1.1 2.3 1.5 2.6 1.6.2.1.4.1.5-.1l.6-.8c.2-.3.4-.2.6-.1l1.8.9c.2.1.4.2.4.3.1.2.1.9-.1 1.3Z"/></svg>واتساب</a>
+            <a href="tel:${listingPhone(p)}" class="btn-charcoal text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.7a2 2 0 01-.5 2.1L8 9.7a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.8.5 2.7.6a2 2 0 011.7 2Z"/></svg>اتصال</a>
+            <a href="${listingWhatsappUrl(p,'property')}" target="_blank" rel="noopener" class="btn-primary text-sm flex items-center justify-center gap-1.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.4A10 10 0 1012 2Zm5.6 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-3.2-.7-2.7-1.1-4.4-3.8-4.6-4-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9.9-2.1.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 2.4 1.3 1.1 2.3 1.5 2.6 1.6.2.1.4.1.5-.1l.6-.8c.2-.3.4-.2.6-.1l1.8.9c.2.1.4.2.4.3.1.2.1.9-.1 1.3Z"/></svg>استفسار واتساب</a>
           </div>
           <button onclick="openInquiry('${p.id}')" class="btn-ghost w-full text-sm">مراسلة</button>
 
@@ -1095,6 +1095,46 @@ async function loadPublicOfficeBySlug(slug){
   render();
 }
 
+function officePublicContact(ownerId){
+  return publicOfficeByOwnerCache[String(ownerId||'')] || null;
+}
+
+function normalizeOfficeWhatsapp(value){
+  let n = String(value||'').replace(/\D/g,'');
+  if(n.startsWith('00')) n = n.slice(2);
+  if(n.startsWith('0')) n = '966' + n.slice(1);
+  else if(n.startsWith('5')) n = '966' + n;
+  return n;
+}
+
+function directOfficeWhatsappUrl(value){
+  const n = normalizeOfficeWhatsapp(value);
+  return n ? 'https://wa.me/' + n : '#';
+}
+
+function listingWhatsappUrl(item, kind){
+  const office = officePublicContact(item.ownerId);
+  const raw = office?.office_whatsapp || item.whatsapp || item.phone || '';
+  const n = normalizeOfficeWhatsapp(raw);
+  if(!n) return '#';
+
+  const title = kind==='vehicle'
+    ? [item.brand,item.model,item.year].filter(Boolean).join(' ')
+    : (item.title || 'الإعلان');
+
+  const link = location.origin + '/#/' + kind + '/' + item.id;
+  const msg = `السلام عليكم، أستفسر عن الإعلان: ${title}
+رقم الإعلان: ${item.ref || item.id}
+رابط الإعلان: ${link}`;
+
+  return 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+}
+
+function listingPhone(item){
+  const office = officePublicContact(item.ownerId);
+  return office?.office_phone || item.phone || '';
+}
+
 function publicOfficeUrl(slug){
   return location.origin + '/' + encodeURIComponent(slug);
 }
@@ -1147,8 +1187,11 @@ function viewPublicOffice(slug){
           <p class="text-sm mt-2" style="color:var(--text-muted)">${total} إعلان نشط</p>
           <p class="text-xs mt-2" dir="ltr" style="color:var(--text-muted)">${publicOfficeUrl(office.slug)}</p>
         </div>
-        <button onclick="sharePublicOffice('${office.slug}')"
-                class="btn-primary shrink-0">مشاركة الصفحة</button>
+        <div class="flex flex-wrap gap-2 shrink-0">
+          ${office.office_phone ? `<a href="tel:${office.office_phone}" class="btn-charcoal">اتصال</a>` : ''}
+          ${office.office_whatsapp ? `<a href="${directOfficeWhatsappUrl(office.office_whatsapp)}" target="_blank" rel="noopener" class="btn-primary">واتساب</a>` : ''}
+          <button onclick="sharePublicOffice('${office.slug}')" class="btn-ghost">مشاركة الصفحة</button>
+        </div>
       </div>
     </section>
 
@@ -1365,8 +1408,8 @@ function viewVehicleDetails(id){
           <h3 class="font-bold mb-3">تواصل مع البائع</h3>
           ${advertiserOfficeBlock(v.ownerId,v.contactName)}
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <a href="tel:${v.phone||office?.phone||''}" class="btn-charcoal text-sm text-center">اتصال</a>
-            <a href="https://wa.me/${waNumber(v.whatsapp||v.phone||office?.whatsapp||'')}" target="_blank" class="btn-primary text-sm text-center">واتساب</a>
+            <a href="tel:${listingPhone(v)}" class="btn-charcoal text-sm text-center">اتصال</a>
+            <a href="${listingWhatsappUrl(v,'vehicle')}" target="_blank" rel="noopener" class="btn-primary text-sm text-center">استفسار واتساب</a>
           </div>
           <button onclick="toggleFavorite('${v.id}')" class="btn-ghost w-full text-sm">${favorites.has(v.id)?'إزالة من المفضلة':'إضافة للمفضلة'}</button>
         </div>
@@ -1944,6 +1987,42 @@ function viewFavorites(embedded){
     ${body}
   </div>`;
 }
+async function saveMyOfficeContact(e){
+  e.preventDefault();
+  if(!isOfficeAccount()) return false;
+  const fd = new FormData(e.target);
+  const phone = String(fd.get('office_phone')||'').trim();
+  const whatsapp = String(fd.get('office_whatsapp')||'').trim();
+
+  const {error} = await supabaseClient.rpc('set_my_office_contact',{
+    p_phone:phone,
+    p_whatsapp:whatsapp
+  });
+
+  if(error){
+    console.error(error);
+    toast('تعذر حفظ بيانات التواصل');
+    return false;
+  }
+
+  currentProfile.office_phone = phone;
+  currentProfile.office_whatsapp = whatsapp;
+
+  const ownerKey = String(currentUser.id);
+  if(publicOfficeByOwnerCache[ownerKey]){
+    publicOfficeByOwnerCache[ownerKey].office_phone = phone;
+    publicOfficeByOwnerCache[ownerKey].office_whatsapp = whatsapp;
+  }
+  if(currentProfile.slug && publicOfficeCache[String(currentProfile.slug).toLowerCase()]){
+    publicOfficeCache[String(currentProfile.slug).toLowerCase()].office_phone = phone;
+    publicOfficeCache[String(currentProfile.slug).toLowerCase()].office_whatsapp = whatsapp;
+  }
+
+  toast('تم حفظ أرقام التواصل');
+  render();
+  return false;
+}
+
 function viewAccount(){
   if(currentUser){
     const office = isOfficeAccount();
@@ -1972,6 +2051,23 @@ function viewAccount(){
             <a href="/${currentProfile.slug}" class="text-sm font-bold underline" style="color:var(--accent)" target="_blank">${location.origin}/${currentProfile.slug}</a>
             <button onclick="sharePublicOffice('${currentProfile.slug}')" class="chip rounded-full px-3 py-1.5 text-xs font-bold">مشاركة</button>
           </div>` : ''}
+        </div>
+        <div class="rounded-2xl p-4 mb-5" style="background:var(--surface-2)">
+          <h3 class="font-bold mb-1">أرقام تواصل المكتب</h3>
+          <p class="text-xs mb-3" style="color:var(--text-muted)">هذه الأرقام تستخدم لأزرار الاتصال والواتساب في صفحة المكتب والإعلانات.</p>
+          <form onsubmit="return saveMyOfficeContact(event)" class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="field-label">رقم الاتصال</label>
+              <input name="office_phone" class="field-input" dir="ltr" value="${currentProfile?.office_phone||''}" placeholder="05xxxxxxxx">
+            </div>
+            <div>
+              <label class="field-label">رقم واتساب</label>
+              <input name="office_whatsapp" class="field-input" dir="ltr" value="${currentProfile?.office_whatsapp||''}" placeholder="05xxxxxxxx">
+            </div>
+            <div class="sm:col-span-2">
+              <button class="btn-primary">حفظ أرقام التواصل</button>
+            </div>
+          </form>
         </div>` : ''}
 
         <div class="flex flex-wrap gap-2">
